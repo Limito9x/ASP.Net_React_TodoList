@@ -1,0 +1,7 @@
+﻿Model: Tạo Category.cs (Entity lưu DB).
+DTO: Tạo CreateCategoryDto.cs (Input) và CategoryDto.cs (Output).
+Mapper: Tạo CategoryMappers.cs viết hàm ToDto và ToModel.
+Interface: Tạo ICategoryService.cs định nghĩa hàm (ví dụ: GetAll, Create).
+Service: Tạo CategoryService.cs, implement logic, gọi DB, dùng Mapper.
+Dependency Injection: Vào Program.cs thêm dòng AddScoped<ICategoryService, ...>.
+Controller: Tạo CategoryController.cs, gọi Service và trả về kết quả.

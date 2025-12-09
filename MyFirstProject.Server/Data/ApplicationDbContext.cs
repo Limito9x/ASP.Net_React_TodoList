@@ -15,22 +15,14 @@ namespace MyFirstProject.Server.Data
         }
 
         public DbSet<RefreshToken>? RefreshTokens { get; set; }
+        public DbSet<Category>? Categories { get; set; }
+        public DbSet<TaskItem>? TaskItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<RefreshToken>(entity =>
-            {
-                entity.HasKey(r => r.Id);
-                entity.Property(r => r.TokenHash)
-                    .IsRequired()
-                    .HasMaxLength(256);
-                entity.HasOne(r=> r.User)
-                    .WithMany(u => u.RefreshTokens)
-                    .HasForeignKey(r => r.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+            builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
     }
 }

@@ -6,5 +6,6 @@ namespace MyFirstProject.Server.Models
     {
         public required string FullName { get; set; }
         public List<RefreshToken>? RefreshTokens { get; set; }
+        public List<Category>? Categories { get; set; }
     }
 }

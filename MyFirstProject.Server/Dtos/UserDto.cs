@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using MyFirstProject.Server.Models;
 
 namespace MyFirstProject.Server.Dtos
 {
