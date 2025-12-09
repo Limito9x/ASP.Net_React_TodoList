@@ -16,4 +16,22 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response, // Nếu thành công thì trả về data bình thường
+  (error) => {
+    // Nếu Server trả về 401 (Unauthorized)
+    if (error.response && error.response.status === 401) {
+      console.log("Phiên đăng nhập hết hạn.");
+      
+      // 1. Xóa LocalStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      // 2. Chuyển hướng về trang Login
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;
