@@ -65,5 +65,41 @@ namespace MyFirstProject.Server.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPut("{categoryId}")]
+        public async Task<ActionResult<CategoryDto>> UpdateCategory(int categoryId, [FromBody] CategoryDto categoryDto)
+        {
+            try
+            {
+                var updatedCategory = await _categoryService.UpdateCategoryAsync(categoryId, categoryDto);
+                return Ok(updatedCategory);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{categoryId}")]
+        public async Task<ActionResult> DeleteCategory(int categoryId)
+        {
+            try
+            {
+                var result = await _categoryService.DeleteCategoryAsync(categoryId);
+                if (!result)
+                {
+                    return NotFound();
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

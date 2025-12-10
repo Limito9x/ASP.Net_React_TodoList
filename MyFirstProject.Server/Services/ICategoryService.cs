@@ -7,5 +7,7 @@ namespace MyFirstProject.Server.Services
         Task<CategoryResponseDto> CreateCategoryAsync(CategoryDto categoryDto, int userId);
         Task<List<CategoryResponseDto>> GetCategoriesByUserIdAsync(int userId);
         Task<CategoryResponseDto?> GetCategoryByIdAsync(int categoryId);
+        Task<CategoryDto> UpdateCategoryAsync(int categoryId, CategoryDto categoryDto);
+        Task<bool> DeleteCategoryAsync(int categoryId);
     }
 }

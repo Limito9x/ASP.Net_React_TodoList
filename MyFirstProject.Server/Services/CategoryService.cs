@@ -42,5 +42,32 @@ namespace MyFirstProject.Server.Services
 
             return categories;
         }
+
+        public async Task<CategoryDto> UpdateCategoryAsync(int categoryId, CategoryDto categoryDto)
+        {
+            var category = await _context.Categories.FindAsync(categoryId);
+            if (category == null)
+            {
+                throw new KeyNotFoundException("Category not found");
+            }
+            // Cập nhật các thuộc tính
+            category.Name = categoryDto.Name;
+            category.Description = categoryDto.Description;
+            // Lưu thay đổi
+            await _context.SaveChangesAsync();
+            return categoryDto;
+        }
+
+        public async Task<bool> DeleteCategoryAsync(int categoryId)
+        {
+            var category = await _context.Categories.FindAsync(categoryId);
+            if (category == null)
+            {
+                return false;
+            }
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
