@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Layout, Menu, Button, Space, Typography } from "antd";
 import {
@@ -6,14 +6,33 @@ import {
   LoginOutlined,
   UserAddOutlined,
   LogoutOutlined,
+  AppstoreOutlined,
 } from "@ant-design/icons";
 
 const { Header: AntHeader } = Layout;
 const { Text } = Typography;
 
+const navigations = [
+  { key: "home", label: "Home", icon: <HomeOutlined />, path: "/" },
+  {
+    key: "category",
+    label: "Category",
+    icon: <AppstoreOutlined />,
+    path: "/category",
+  },
+];
+
 export default function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { userInfo, logout } = useAuth();
+
+  // Xác định menu item đang active dựa trên pathname
+  const getSelectedKey = () => {
+    const currentPath = location.pathname;
+    const activeNav = navigations.find((nav) => nav.path === currentPath);
+    return activeNav ? [activeNav.key] : ["home"];
+  };
 
   return (
     <AntHeader
@@ -29,16 +48,14 @@ export default function Header() {
       <Menu
         theme="dark"
         mode="horizontal"
-        defaultSelectedKeys={["home"]}
+        selectedKeys={getSelectedKey()}
         style={{ flex: 1, minWidth: 0, marginLeft: "20px" }}
-        items={[
-          {
-            key: "home",
-            icon: <HomeOutlined />,
-            label: "Home",
-            onClick: () => navigate("/"),
-          },
-        ]}
+        items={navigations.map((nav) => ({
+          key: nav.key,
+          icon: nav.icon,
+          label: nav.label,
+          onClick: () => navigate(nav.path),
+        }))}
       />
       <Space>
         {userInfo ? (

@@ -14,7 +14,7 @@ export default function RootLayout() {
         </div>
       </Content>
       <Footer style={{ textAlign: "center" }}>
-        My First Project ©2024 Created by YourName
+        My First Project ©2025 Created by Limito
       </Footer>
     </Layout>
   );
