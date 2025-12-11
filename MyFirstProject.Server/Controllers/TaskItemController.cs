@@ -19,7 +19,7 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<TaskItemDto>> CreateTask([FromBody] TaskItemDto taskItemDto)
+        public async Task<ActionResult<TaskItemResponseDto>> CreateTask([FromBody] TaskItemDto taskItemDto)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace MyFirstProject.Server.Controllers
             }
         }
 
-        [HttpGet("category/{categoryId}")]
+        [HttpGet("categories/{categoryId}")]
         public async Task<ActionResult<List<TaskItemResponseDto>>> GetTasksByCategoryId(int categoryId)
         {
             try
@@ -57,6 +57,42 @@ namespace MyFirstProject.Server.Controllers
                     return NotFound();
                 }
                 return Ok(taskItem);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPut("{taskId}")]
+        public async Task<ActionResult<TaskItemResponseDto>> UpdateTaskById(int taskId, [FromBody] TaskItemDto taskItemDto)
+        {
+            try
+            {
+                var updatedTaskItem = await _taskItemSerivce.UpdateTaskItemByIdAsync(taskId, taskItemDto);
+                if (updatedTaskItem == null)
+                {
+                    return NotFound();
+                }
+                return Ok(updatedTaskItem);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{taskId}")]
+        public async Task<ActionResult> DeleteTaskById(int taskId)
+        {
+            try
+            {
+                var isDeleted = await _taskItemSerivce.DeleteTaskItemByIdAsync(taskId);
+                if (!isDeleted)
+                {
+                    return NotFound();
+                }
+                return NoContent();
             }
             catch (Exception ex)
             {

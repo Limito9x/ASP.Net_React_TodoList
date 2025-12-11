@@ -33,5 +33,32 @@ namespace MyFirstProject.Server.Services
                 .Select(t => t.ToDto())
                 .ToListAsync();
         }
+
+        public async Task<TaskItemResponseDto?> UpdateTaskItemByIdAsync(int taskId, TaskItemDto taskItemDto)
+        {
+            var existingTaskItem = await _context.TaskItems.FindAsync(taskId);
+            if (existingTaskItem == null)
+            {
+                return null;
+            }
+            existingTaskItem.Name = taskItemDto.Name;
+            existingTaskItem.Description = taskItemDto.Description;
+            existingTaskItem.DueDate = taskItemDto.DueDate;
+            existingTaskItem.Status = taskItemDto.Status;
+            await _context.SaveChangesAsync();
+            return existingTaskItem.ToDto();
+        }
+
+        public async Task<bool> DeleteTaskItemByIdAsync(int taskId)
+        {
+            var existingTaskItem = await _context.TaskItems.FindAsync(taskId);
+            if (existingTaskItem == null)
+            {
+                return false;
+            }
+            _context.TaskItems.Remove(existingTaskItem);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

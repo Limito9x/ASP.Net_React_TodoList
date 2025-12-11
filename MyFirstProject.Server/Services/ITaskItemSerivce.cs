@@ -7,5 +7,7 @@ namespace MyFirstProject.Server.Services
         Task<TaskItemResponseDto> CreateTaskItemAsync(TaskItemDto taskItemDto);
         Task<List<TaskItemResponseDto>> GetTaskItemsByCategoryIdAsync(int categoryId);
         Task<TaskItemResponseDto?> GetTaskItemByIdAsync(int taskItemId);
+        Task<TaskItemResponseDto?> UpdateTaskItemByIdAsync(int taskId, TaskItemDto taskItemDto); 
+        Task<bool> DeleteTaskItemByIdAsync(int taskId);
     }
 }

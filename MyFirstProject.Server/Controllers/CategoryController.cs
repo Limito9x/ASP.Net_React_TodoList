@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace MyFirstProject.Server.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/categories")]
     [Authorize]
     public class CategoryController : ControllerBase
     {

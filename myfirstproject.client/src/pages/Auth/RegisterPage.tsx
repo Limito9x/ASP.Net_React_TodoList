@@ -242,7 +242,7 @@ export default function RegisterPage() {
           <span>Already have an account?</span>
           <button
             type="button"
-            onClick={() => navigate("/auth/login")}
+            onClick={() => navigate("/login")}
             style={{ marginLeft: "0.5rem" }}
           >
             Sign in

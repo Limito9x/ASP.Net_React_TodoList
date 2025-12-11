@@ -14,15 +14,23 @@ export interface CategoryResponse {
 
 export const categoryService = {
   getAllCategories: async () => {
-    const response = await api.get<CategoryResponse[]>("/category");
+    const response = await api.get<CategoryResponse[]>("/categories");
     return response.data;
   },
     getCategoryById: async (id: string) => {
-    const response = await api.get<CategoryResponse>(`/category/${id}`);
+    const response = await api.get<CategoryResponse>(`/categories/${id}`);
     return response.data;
   },
   createCategory: async (payload: CategoryPayload) => {
-    const response = await api.post<CategoryResponse>("/category", payload);
+    const response = await api.post<CategoryResponse>("/categories", payload);
+    return response.data;
+  },
+  updateCategory: async (id: string, payload: CategoryPayload) => {
+    const response = await api.put<CategoryResponse>(`/categories/${id}`, payload);
+    return response.data;
+  },
+  deleteCategory: async (id: string) => {
+    const response = await api.delete<void>(`/categories/${id}`);
     return response.data;
   },
 };
