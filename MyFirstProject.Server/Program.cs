@@ -53,7 +53,7 @@ builder.Services.AddAuthentication(options =>
 
 // Đăng ký dịch vụ tùy chỉnh
 builder.Services.AddScoped<IAuthService, AuthService>()
-                .AddScoped<ICategoryService, CategoryService>()
+                .AddScoped<IPlanService, PlanService>()
                 .AddScoped<ITaskItemSerivce, TaskItemService>();
 
 // Sau khi cấu hình xong mới bắt đầu build ứng dụng

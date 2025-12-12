@@ -19,7 +19,7 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<TaskItemResponseDto>> CreateTask([FromBody] TaskItemDto taskItemDto)
+        public async Task<ActionResult<TaskItemResponseDto>> CreateTask([FromBody] CreateTaskItemDto taskItemDto)
         {
             try
             {
@@ -32,12 +32,13 @@ namespace MyFirstProject.Server.Controllers
             }
         }
 
-        [HttpGet("categories/{categoryId}")]
-        public async Task<ActionResult<List<TaskItemResponseDto>>> GetTasksByCategoryId(int categoryId)
+        [HttpGet("plans/{planId}")]
+        public async Task<ActionResult<List<TaskItemResponseDto>>> GetTasksByPlanId(int planId)
         {
             try
             {
-                var taskItems = await _taskItemSerivce.GetTaskItemsByCategoryIdAsync(categoryId);
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var taskItems = await _taskItemSerivce.GetTaskItemsByPlanIdAsync(planId, userId);  
                 return Ok(taskItems);
             }
             catch (Exception ex)
@@ -51,7 +52,8 @@ namespace MyFirstProject.Server.Controllers
         {
             try
             {
-                var taskItem = await _taskItemSerivce.GetTaskItemByIdAsync(taskItemId);
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var taskItem = await _taskItemSerivce.GetTaskItemByIdAsync(taskItemId, userId);
                 if (taskItem == null)
                 {
                     return NotFound();
@@ -65,11 +67,12 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpPut("{taskId}")]
-        public async Task<ActionResult<TaskItemResponseDto>> UpdateTaskById(int taskId, [FromBody] TaskItemDto taskItemDto)
+        public async Task<ActionResult<TaskItemResponseDto>> UpdateTaskById(int taskId, [FromBody] UpdateTaskItemDto taskItemDto)
         {
             try
             {
-                var updatedTaskItem = await _taskItemSerivce.UpdateTaskItemByIdAsync(taskId, taskItemDto);
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var updatedTaskItem = await _taskItemSerivce.UpdateTaskItemByIdAsync(taskId, taskItemDto, userId);
                 if (updatedTaskItem == null)
                 {
                     return NotFound();
@@ -87,7 +90,8 @@ namespace MyFirstProject.Server.Controllers
         {
             try
             {
-                var isDeleted = await _taskItemSerivce.DeleteTaskItemByIdAsync(taskId);
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var isDeleted = await _taskItemSerivce.DeleteTaskItemByIdAsync(taskId, userId);
                 if (!isDeleted)
                 {
                     return NotFound();

@@ -157,7 +157,7 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MyFirstProject.Server.Models.Category", b =>
+            modelBuilder.Entity("MyFirstProject.Server.Models.Plan", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -381,7 +381,7 @@ namespace MyFirstProject.Server.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MyFirstProject.Server.Models.Category", b =>
+            modelBuilder.Entity("MyFirstProject.Server.Models.Plan", b =>
                 {
                     b.HasOne("MyFirstProject.Server.Models.User", "User")
                         .WithMany("Categories")
@@ -405,16 +405,16 @@ namespace MyFirstProject.Server.Data.Migrations
 
             modelBuilder.Entity("MyFirstProject.Server.Models.TaskItem", b =>
                 {
-                    b.HasOne("MyFirstProject.Server.Models.Category", "Category")
+                    b.HasOne("MyFirstProject.Server.Models.Plan", "Plan")
                         .WithMany("TaskItems")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Category");
+                    b.Navigation("Plan");
                 });
 
-            modelBuilder.Entity("MyFirstProject.Server.Models.Category", b =>
+            modelBuilder.Entity("MyFirstProject.Server.Models.Plan", b =>
                 {
                     b.Navigation("TaskItems");
                 });

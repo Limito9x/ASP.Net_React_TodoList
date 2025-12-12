@@ -15,20 +15,26 @@ namespace MyFirstProject.Server.Mappers
                 Status = taskItem.Status,
                 CreatedAt = taskItem.CreatedAt,
                 CompletedAt = taskItem.CompletedAt,
-                DueDate = taskItem.DueDate,
-                CategoryId = taskItem.CategoryId,
             };
         }
-        public static TaskItem ToModel(this TaskItemDto TaskItemDto)
+        public static TaskItem ToCreateModel(this CreateTaskItemDto TaskItemDto)
         {
             return new TaskItem
             {
                 Name = TaskItemDto.Name,
                 Description = TaskItemDto.Description,
                 DueDate = TaskItemDto.DueDate,
-                Status = TaskItemDto.Status,
-                CategoryId = TaskItemDto.CategoryId,
+                PlanId = TaskItemDto.PlanId,
             };
+        }
+
+        public static void UpdateFromDto(this TaskItem existingTask, UpdateTaskItemDto dto)
+        {
+            existingTask.Name = dto.Name;
+            existingTask.Description = dto.Description;
+            existingTask.UpdatedAt = DateTime.UtcNow;
+            existingTask.DueDate = dto.DueDate;
+            existingTask.Status = dto.Status;
         }
     }
 }

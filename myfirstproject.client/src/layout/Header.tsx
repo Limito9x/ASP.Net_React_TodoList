@@ -15,10 +15,10 @@ const { Text } = Typography;
 const navigations = [
   { key: "home", label: "Home", icon: <HomeOutlined />, path: "/" },
   {
-    key: "categories",
-    label: "Categories",
+    key: "plans",
+    label: "Plans",
     icon: <AppstoreOutlined />,
-    path: "/categories",
+    path: "/plans",
   },
 ];
 
@@ -35,8 +35,8 @@ export default function Header() {
     const activeNav = navigations.find((nav) => nav.path === currentPath);
     if (activeNav) return [activeNav.key];
 
-    // Kiểm tra nested routes (ví dụ: /categories/:id/tasks vẫn highlight Categories)
-    if (currentPath.startsWith("/categories")) return ["categories"];
+    // Kiểm tra nested routes (ví dụ: /plans/:id/tasks vẫn highlight Plans)
+    if (currentPath.startsWith("/plans")) return ["plans"];
 
     // Mặc định về home
     return ["home"];

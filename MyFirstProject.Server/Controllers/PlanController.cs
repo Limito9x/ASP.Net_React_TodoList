@@ -7,25 +7,25 @@ using System.Security.Claims;
 namespace MyFirstProject.Server.Controllers
 {
     [ApiController]
-    [Route("api/categories")]
+    [Route("api/plans")]
     [Authorize]
-    public class CategoryController : ControllerBase
+    public class PlanController : ControllerBase
     {
-        private readonly ICategoryService _categoryService;
+        private readonly IPlanService _PlanService;
 
-        public CategoryController(ICategoryService categoryService)
+        public PlanController(IPlanService PlanService)
         {
-            _categoryService = categoryService;
+            _PlanService = PlanService;
         }
 
         [HttpPost]
-        public async Task<ActionResult<CategoryDto>> CreateCategory([FromBody] CategoryDto categoryDto)
+        public async Task<ActionResult<PlanResponseDto>> CreatePlan([FromBody] CreatePlanDto PlanDto)
         {
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var createdCategory = await _categoryService.CreateCategoryAsync(categoryDto, userId);
-                return Ok(createdCategory);
+                var createdPlan = await _PlanService.CreatePlanAsync(PlanDto,userId);
+                return Ok(createdPlan);
             }
             catch (Exception ex)
             {
@@ -34,12 +34,12 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<CategoryResponseDto>>> GetCategories()
+        public async Task<ActionResult<List<PlanResponseDto>>> GetCategories()
         {
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var categories = await _categoryService.GetCategoriesByUserIdAsync(userId);
+                var categories = await _PlanService.GetPlansByUserIdAsync(userId);
                 return Ok(categories);
             }
             catch (Exception ex)
@@ -48,17 +48,18 @@ namespace MyFirstProject.Server.Controllers
             }
         }
 
-        [HttpGet("{categoryId}")]
-        public async Task<ActionResult<CategoryResponseDto>> GetCategoryById(int categoryId)
+        [HttpGet("{PlanId}")]
+        public async Task<ActionResult<PlanResponseDto>> GetPlanById(int PlanId)
         {
             try
             {
-                var category = await _categoryService.GetCategoryByIdAsync(categoryId);
-                if (category == null)
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var Plan = await _PlanService.GetPlanByIdAsync(PlanId,userId);
+                if (Plan == null)
                 {
                     return NotFound();
                 }
-                return Ok(category);
+                return Ok(Plan);
             }
             catch (Exception ex)
             {
@@ -66,13 +67,14 @@ namespace MyFirstProject.Server.Controllers
             }
         }
 
-        [HttpPut("{categoryId}")]
-        public async Task<ActionResult<CategoryDto>> UpdateCategory(int categoryId, [FromBody] CategoryDto categoryDto)
+        [HttpPut("{PlanId}")]
+        public async Task<ActionResult<PlanResponseDto>> UpdatePlan(int PlanId, [FromBody] UpdatePlanDto PlanDto)
         {
             try
             {
-                var updatedCategory = await _categoryService.UpdateCategoryAsync(categoryId, categoryDto);
-                return Ok(updatedCategory);
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var updatedPlan = await _PlanService.UpdatePlanAsync(PlanId, PlanDto, userId);
+                return Ok(updatedPlan);
             }
             catch (KeyNotFoundException)
             {
@@ -84,12 +86,13 @@ namespace MyFirstProject.Server.Controllers
             }
         }
 
-        [HttpDelete("{categoryId}")]
-        public async Task<ActionResult> DeleteCategory(int categoryId)
+        [HttpDelete("{PlanId}")]
+        public async Task<ActionResult> DeletePlan(int PlanId)
         {
             try
             {
-                var result = await _categoryService.DeleteCategoryAsync(categoryId);
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var result = await _PlanService.DeletePlanAsync(PlanId, userId);
                 if (!result)
                 {
                     return NotFound();

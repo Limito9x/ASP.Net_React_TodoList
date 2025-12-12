@@ -3,7 +3,7 @@ import api from "./axiosConfig";
 export interface TaskPayload {
     name: string;
     description?: string;
-    categoryId: string;
+    planId: string;
     dueDate?: string;
     status?: "todo" | "inProgress" | "done";
 }
@@ -12,15 +12,15 @@ export interface TaskResponse {
     id: string;
     name: string;
     description?: string;
-    categoryId: string;
+    planId: string;
     dueDate?: string;
     status: "todo" | "inProgress" | "done";
     createdAt: string;
 }
 
 export const taskService = {
-    getTasksByCategoryId: async (categoryId: string) => {
-        const response = await api.get<TaskResponse[]>(`/tasks/categories/${categoryId}`);
+    getTasksByPlanId: async (planId: string) => {
+        const response = await api.get<TaskResponse[]>(`/tasks/plans/${planId}`);
         return response.data;
     },
     createTask: async (payload: TaskPayload) => {

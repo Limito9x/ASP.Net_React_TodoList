@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyFirstProject.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251209093051_TodoTask2")]
-    partial class TodoTask2
+    [Migration("20251212040453_ChangePlanTable")]
+    partial class ChangePlanTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -169,7 +169,16 @@ namespace MyFirstProject.Server.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<string>("Name")
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double?>("Progress")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -227,9 +236,6 @@ namespace MyFirstProject.Server.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -243,18 +249,21 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<int>("PlanId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("PlanId");
 
                     b.ToTable("Tasks", (string)null);
                 });
@@ -384,7 +393,7 @@ namespace MyFirstProject.Server.Data.Migrations
             modelBuilder.Entity("MyFirstProject.Server.Models.Plan", b =>
                 {
                     b.HasOne("MyFirstProject.Server.Models.User", "User")
-                        .WithMany("Categories")
+                        .WithMany("Plans")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -407,7 +416,7 @@ namespace MyFirstProject.Server.Data.Migrations
                 {
                     b.HasOne("MyFirstProject.Server.Models.Plan", "Plan")
                         .WithMany("TaskItems")
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -421,7 +430,7 @@ namespace MyFirstProject.Server.Data.Migrations
 
             modelBuilder.Entity("MyFirstProject.Server.Models.User", b =>
                 {
-                    b.Navigation("Categories");
+                    b.Navigation("Plans");
 
                     b.Navigation("RefreshTokens");
                 });

@@ -1,7 +1,7 @@
 import { type RouteObject, useRoutes } from "react-router-dom";
 import RootLayout from "../layout/RootLayout";
 import Home from "../pages/Home";
-import CategoryPage from "../pages/Category";
+import PlanPage from "../pages/Plan";
 import TaskPage from "../pages/Task";
 import LoginPage from "../pages/Auth/LoginPage";
 import RegisterPage from "../pages/Auth/RegisterPage";
@@ -17,11 +17,11 @@ export const AppRoutes = () => {
                     element: <Home />
                 },
                 {
-                    path: "categories",
-                    element: <CategoryPage />
+                    path: "plans",
+                    element: <PlanPage />
                 },
                 {
-                    path: "categories/:categoryId",
+                    path: "plans/:planId",
                     element: <TaskPage />
                 }
             ]

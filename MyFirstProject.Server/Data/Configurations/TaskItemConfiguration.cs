@@ -21,9 +21,9 @@ namespace MyFirstProject.Server.Data.Configurations
             builder.Property(t => t.CompletedAt);
             builder.Property(t => t.Status)
                 .HasConversion<string>();
-            builder.HasOne(t => t.Category)
+            builder.HasOne(t => t.Plan)
                 .WithMany(c => c.TaskItems)
-                .HasForeignKey(t => t.CategoryId)
+                .HasForeignKey(t => t.PlanId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

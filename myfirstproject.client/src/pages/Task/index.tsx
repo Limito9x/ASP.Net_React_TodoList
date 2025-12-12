@@ -35,7 +35,7 @@ const additionalUpdateFields = {
 };
 
 export default function TaskPage() {
-    const { categoryId } = useParams<{ categoryId: string }>();
+    const { planId } = useParams<{ planId: string }>();
   const queryClient = useQueryClient();
 
   const [form] = Form.useForm();
@@ -67,14 +67,14 @@ export default function TaskPage() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["tasks", categoryId],
-    queryFn: () => taskService.getTasksByCategoryId(categoryId!),
+    queryKey: ["tasks", planId],
+    queryFn: () => taskService.getTasksByPlanId(planId!),
   });
 
   const createMutation = useMutation({
     mutationFn: taskService.createTask,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks", categoryId] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", planId] });
     },
   });
 
@@ -82,7 +82,7 @@ export default function TaskPage() {
     mutationFn: ({ id, payload }: { id: string; payload: any }) =>
       taskService.updateTask(id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks", categoryId] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", planId] });
       alert("Task updated successfully!");
       handleCloseEditModal();
     },
@@ -95,7 +95,7 @@ export default function TaskPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => taskService.deleteTask(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks", categoryId] });
+      queryClient.invalidateQueries({ queryKey: ["tasks", planId] });
     },
   });
 
@@ -106,7 +106,7 @@ export default function TaskPage() {
         name: values.taskName,
         description: values.description,
         dueDate: values.dueDate,
-        categoryId: categoryId!,
+        planId: planId!,
       };
       createMutation.mutate(payload);
       alert("Task created successfully!");
@@ -119,7 +119,7 @@ export default function TaskPage() {
 
   return (
     <div>
-      <h1>Category Page</h1>
+      <h1>Task Page</h1>
       <Button type="primary" onClick={() => setOpenModal(true)}>
         Create New Task
       </Button>

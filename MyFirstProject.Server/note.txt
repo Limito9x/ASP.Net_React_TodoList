@@ -5,3 +5,6 @@ Interface: Tạo ICategoryService.cs định nghĩa hàm (ví dụ: GetAll, Crea
 Service: Tạo CategoryService.cs, implement logic, gọi DB, dùng Mapper.
 Dependency Injection: Vào Program.cs thêm dòng AddScoped<ICategoryService, ...>.
 Controller: Tạo CategoryController.cs, gọi Service và trả về kết quả.
+
+Để xóa được các file trước khi xóa bảng asset (on cascade), ta cần cấu hình interceptor --> đăng ký interceptor trong DbContext để xử lý sự kiện xóa.
+Phải load các entity liên quan trước khi xóa bảng chính, nếu không load thì EF Core sẽ không biết các entity liên quan để xóa.

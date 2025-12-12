@@ -154,7 +154,59 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MyFirstProject.Server.Models.Category", b =>
+            modelBuilder.Entity("MyFirstProject.Server.Models.Asset", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Extension")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("PlanId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TaskId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlanId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("Assets", (string)null);
+                });
+
+            modelBuilder.Entity("MyFirstProject.Server.Models.Plan", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -166,7 +218,16 @@ namespace MyFirstProject.Server.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<string>("Name")
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double?>("Progress")
+                        .HasColumnType("double precision");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -178,7 +239,7 @@ namespace MyFirstProject.Server.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Plans", (string)null);
                 });
 
             modelBuilder.Entity("MyFirstProject.Server.Models.RefreshToken", b =>
@@ -224,9 +285,6 @@ namespace MyFirstProject.Server.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -245,13 +303,19 @@ namespace MyFirstProject.Server.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<int>("PlanId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("PlanId");
 
                     b.ToTable("Tasks", (string)null);
                 });
@@ -378,10 +442,28 @@ namespace MyFirstProject.Server.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MyFirstProject.Server.Models.Category", b =>
+            modelBuilder.Entity("MyFirstProject.Server.Models.Asset", b =>
+                {
+                    b.HasOne("MyFirstProject.Server.Models.Plan", "Plan")
+                        .WithMany("Assets")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyFirstProject.Server.Models.TaskItem", "Task")
+                        .WithMany("Assets")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Plan");
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("MyFirstProject.Server.Models.Plan", b =>
                 {
                     b.HasOne("MyFirstProject.Server.Models.User", "User")
-                        .WithMany("Categories")
+                        .WithMany("Plans")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -402,23 +484,30 @@ namespace MyFirstProject.Server.Data.Migrations
 
             modelBuilder.Entity("MyFirstProject.Server.Models.TaskItem", b =>
                 {
-                    b.HasOne("MyFirstProject.Server.Models.Category", "Category")
+                    b.HasOne("MyFirstProject.Server.Models.Plan", "Plan")
                         .WithMany("TaskItems")
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Category");
+                    b.Navigation("Plan");
                 });
 
-            modelBuilder.Entity("MyFirstProject.Server.Models.Category", b =>
+            modelBuilder.Entity("MyFirstProject.Server.Models.Plan", b =>
                 {
+                    b.Navigation("Assets");
+
                     b.Navigation("TaskItems");
+                });
+
+            modelBuilder.Entity("MyFirstProject.Server.Models.TaskItem", b =>
+                {
+                    b.Navigation("Assets");
                 });
 
             modelBuilder.Entity("MyFirstProject.Server.Models.User", b =>
                 {
-                    b.Navigation("Categories");
+                    b.Navigation("Plans");
 
                     b.Navigation("RefreshTokens");
                 });
