@@ -43,6 +43,7 @@ namespace MyFirstProject.Server.Services
         {
             var plans = await _context.Plans
                 .Where(p => p.UserId == userId)
+                .OrderByDescending(p => p.StartDate)
                 .Select(p => p.ToDto())
                 .ToListAsync();
 

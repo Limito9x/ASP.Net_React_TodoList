@@ -32,8 +32,8 @@ namespace MyFirstProject.Server.Controllers
             }
         }
 
-        [HttpGet("plans/{planId}")]
-        public async Task<ActionResult<List<TaskItemResponseDto>>> GetTasksByPlanId(int planId)
+        [HttpGet]
+        public async Task<ActionResult<List<TaskItemResponseDto>>> GetTasksByPlanId([FromQuery] int planId)
         {
             try
             {

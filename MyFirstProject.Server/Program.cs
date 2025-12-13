@@ -6,12 +6,14 @@ using MyFirstProject.Server.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(opts => opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -54,7 +56,8 @@ builder.Services.AddAuthentication(options =>
 // Đăng ký dịch vụ tùy chỉnh
 builder.Services.AddScoped<IAuthService, AuthService>()
                 .AddScoped<IPlanService, PlanService>()
-                .AddScoped<ITaskItemSerivce, TaskItemService>();
+                .AddScoped<ITaskItemSerivce, TaskItemService>()
+                .AddScoped<ICloudinaryService, CloudinaryService>();
 
 // Sau khi cấu hình xong mới bắt đầu build ứng dụng
 var app = builder.Build();

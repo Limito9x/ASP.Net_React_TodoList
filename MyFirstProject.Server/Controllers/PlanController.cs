@@ -39,8 +39,8 @@ namespace MyFirstProject.Server.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var categories = await _PlanService.GetPlansByUserIdAsync(userId);
-                return Ok(categories);
+                var plans = await _PlanService.GetPlansByUserIdAsync(userId);
+                return Ok(plans);
             }
             catch (Exception ex)
             {

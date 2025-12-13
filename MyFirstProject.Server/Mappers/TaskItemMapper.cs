@@ -14,6 +14,7 @@ namespace MyFirstProject.Server.Mappers
                 Description = taskItem.Description,
                 Status = taskItem.Status,
                 CreatedAt = taskItem.CreatedAt,
+                DueDate = taskItem.DueDate,
                 CompletedAt = taskItem.CompletedAt,
             };
         }

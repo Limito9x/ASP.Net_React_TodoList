@@ -8,3 +8,6 @@ Controller: Tạo CategoryController.cs, gọi Service và trả về kết qu�
 
 Để xóa được các file trước khi xóa bảng asset (on cascade), ta cần cấu hình interceptor --> đăng ký interceptor trong DbContext để xử lý sự kiện xóa.
 Phải load các entity liên quan trước khi xóa bảng chính, nếu không load thì EF Core sẽ không biết các entity liên quan để xóa.
+
+Kỹ thuật upload lên cloudinary là stream, không dùng buffer.
+Tưởng tượng stream như một dòng chảy dữ liệu, ta có thể đọc hoặc ghi dữ liệu từng phần mà không cần tải toàn bộ vào bộ nhớ.

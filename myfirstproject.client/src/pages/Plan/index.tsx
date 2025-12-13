@@ -5,7 +5,9 @@ import {
   Modal,
   DatePicker,
   Popconfirm,
-  List,
+  Flex,
+  Card,
+  Spin,
   message,
 } from "antd";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -76,6 +78,8 @@ export default function PlanPage() {
     queryKey: ["plans"],
     queryFn: planService.getAllPlans,
   });
+
+  console.log("Plans data:", plans);
 
   // --- MUTATIONS ---
   const createMutation = useMutation({
@@ -157,45 +161,48 @@ export default function PlanPage() {
         </Button>
       </div>
 
-      <List
-        loading={isLoading}
-        grid={{ gutter: 16, column: 1 }} // Hiển thị dạng list dọc
-        dataSource={plans}
-        renderItem={(plan) => (
-          <List.Item>
-            <div className="border border-gray-200 rounded p-4 flex justify-between items-center shadow-sm">
-              <div>
-                <h3 className="text-lg font-bold">{plan.title}</h3>
-                <p className="text-gray-500">{plan.description}</p>
-                {plan.endDate && (
-                  <p className="text-xs text-blue-500 mt-1">
-                    Due: {dayjs(plan.endDate).format("DD/MM/YYYY")}
-                  </p>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Button href={`/plans/${plan.id}`}>View</Button>
-
-                <Button
-                  icon={<EditOutlined />}
-                  onClick={() => handleOpenEdit(plan)}
-                />
-
-                {/* Popconfirm thay cho window.confirm */}
-                <Popconfirm
-                  title="Delete the plan"
-                  description="Are you sure to delete this plan?"
-                  onConfirm={() => deleteMutation.mutate(plan.id)}
-                  okText="Yes"
-                  cancelText="No"
-                >
-                  <Button danger icon={<DeleteOutlined />} />
-                </Popconfirm>
-              </div>
-            </div>
-          </List.Item>
-        )}
-      />
+      {isLoading ? (
+        <div style={{ textAlign: "center", padding: "50px 0" }}>
+          <Spin size="large" />
+        </div>
+      ) : (
+        <Flex vertical gap={16}>
+          {plans?.map((plan) => (
+            <Card
+              key={plan.id}
+              hoverable
+              title={<strong>{plan.title}</strong>}
+              extra={
+                <div style={{ display: "flex", gap: 8 }}>
+                  <Button href={`/plans/${plan.id}`}>View</Button>
+                  <Button
+                    icon={<EditOutlined />}
+                    onClick={() => handleOpenEdit(plan)}
+                  />
+                  <Popconfirm
+                    title="Delete the plan"
+                    description="Are you sure to delete this plan?"
+                    onConfirm={() => deleteMutation.mutate(plan.id)}
+                    okText="Yes"
+                    cancelText="No"
+                  >
+                    <Button danger icon={<DeleteOutlined />} />
+                  </Popconfirm>
+                </div>
+              }
+            >
+              <p style={{ marginBottom: 8, color: "#666" }}>
+                {plan.description}
+              </p>
+              {plan.endDate && (
+                <p style={{ color: "#1890ff", fontSize: "12px", margin: 0 }}>
+                  Due: {dayjs(plan.endDate).format("DD/MM/YYYY")}
+                </p>
+              )}
+            </Card>
+          ))}
+        </Flex>
+      )}
 
       {/* Dùng 1 Modal duy nhất cho cả Create và Edit */}
       <Modal

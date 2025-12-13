@@ -13,7 +13,7 @@ namespace MyFirstProject.Server.Data.Configurations
             builder.Property(a => a.FileName)
                 .IsRequired()
                 .HasMaxLength(255);
-            builder.Property(a => a.FilePath)
+            builder.Property(a => a.PublicId)
                 .IsRequired()
                 .HasMaxLength(500);
             builder.Property(a => a.Type)
