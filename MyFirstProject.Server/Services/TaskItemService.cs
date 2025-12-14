@@ -60,7 +60,7 @@ namespace MyFirstProject.Server.Services
 
         public async Task<bool> DeleteTaskItemByIdAsync(int taskId, int userId)
         {
-            var existingTaskItem = await _context.TaskItems.FindAsync(taskId);
+            var existingTaskItem = await _context.TaskItems.Include(t=>t.Assets).FirstOrDefaultAsync(t=>t.Id==taskId);
             if (existingTaskItem == null)
             {
                 return false;

@@ -23,13 +23,13 @@ namespace MyFirstProject.Server.Services
             var asset = await _context.Assets.FindAsync(int.Parse(assetId)) ??
                 throw new Exception("Asset not found");
 
-            await _cloudinaryService.DeleteFileAsync(asset.PublicId);
+            await _cloudinaryService.DeleteFileAsync(asset.PublicId, asset.Type);
 
             _context.Assets.Remove(asset);
             await _context.SaveChangesAsync();
 
         }
-        public async Task<AssetResponseDto> UploadAssetAsync(IFormFile file, int planId, int taskId)
+        public async Task<AssetResponseDto> UploadAssetAsync(IFormFile file, int planId, int? taskId)
         {
             var cloudResult =  _cloudinaryService.UploadFileAsync(file);
 
@@ -50,8 +50,19 @@ namespace MyFirstProject.Server.Services
             await _context.SaveChangesAsync();
             return asset.ToDto();
         }
-        public async Task<List<AssetResponseDto>> UploadAssetsAsync(List<IFormFile> files, int planId, int taskId)
+        public async Task<List<AssetResponseDto>> UploadAssetsAsync(UploadAssetDto assetDto)
         {
+            var files = assetDto.Files;
+            var planId = assetDto.PlanId;
+            var taskId = assetDto.TaskId ?? null;
+            if(taskId!=null)
+            {
+                var taskExists = await _context.TaskItems.AnyAsync(t => t.Id == taskId && t.PlanId == planId);
+                if (!taskExists)
+                {
+                    throw new Exception("Task does not exist in the specified plan.");
+                }
+            }
             var uploadTasks = files.Select(file => UploadAssetAsync(file, planId, taskId));
             var assetDtos = await Task.WhenAll(uploadTasks);
             var assetDtoList = assetDtos.ToList();

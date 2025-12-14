@@ -2,7 +2,7 @@ import { type RouteObject, useRoutes } from "react-router-dom";
 import RootLayout from "../layout/RootLayout";
 import Home from "../pages/Home";
 import PlanPage from "../pages/Plan";
-import TaskPage from "../pages/Task";
+import TaskIndexPage from "../pages/Task";
 import LoginPage from "../pages/Auth/LoginPage";
 import RegisterPage from "../pages/Auth/RegisterPage";
 
@@ -22,7 +22,7 @@ export const AppRoutes = () => {
                 },
                 {
                     path: "plans/:planId",
-                    element: <TaskPage />
+                    element: <TaskIndexPage />
                 }
             ]
         },

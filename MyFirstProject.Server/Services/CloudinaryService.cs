@@ -1,6 +1,7 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using MyFirstProject.Server.Dtos;
+using MyFirstProject.Server.Models.Enums;
 
 namespace MyFirstProject.Server.Services
 {
@@ -33,10 +34,20 @@ namespace MyFirstProject.Server.Services
             return new[] { ".mp4", ".mov", ".avi", ".webm" }.Contains(ext);
         }
 
-        public async Task DeleteFileAsync(string publicId)
+        public async Task DeleteFileAsync(string publicId, FileType fileType)
         {
-            var deletionParams = new DeletionParams(publicId);
-            var result = await _cloudinary.DestroyAsync(deletionParams);
+            var resourceType = fileType switch
+            {
+                FileType.Image => ResourceType.Image,
+                FileType.Video => ResourceType.Video,
+                FileType.Audio => ResourceType.Video,
+                _ => ResourceType.Raw
+            };
+            var deletionParams = new DeletionParams(publicId)
+            {
+                ResourceType = resourceType
+            };
+            await _cloudinary.DestroyAsync(deletionParams);
         }
 
         public async Task<CloudinaryResult> UploadFileAsync(IFormFile file)

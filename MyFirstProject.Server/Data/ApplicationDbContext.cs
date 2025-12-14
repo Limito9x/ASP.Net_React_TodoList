@@ -14,10 +14,10 @@ namespace MyFirstProject.Server.Data
         public ApplicationDbContext() {
         }
 
-        public DbSet<RefreshToken>? RefreshTokens { get; set; }
-        public DbSet<Plan>? Plans { get; set; }
-        public DbSet<TaskItem>? TaskItems { get; set; }
-        public DbSet<Asset>? Assets { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        public DbSet<Plan> Plans { get; set; } = null!;
+        public DbSet<TaskItem> TaskItems { get; set; } = null!;
+        public DbSet<Asset> Assets { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

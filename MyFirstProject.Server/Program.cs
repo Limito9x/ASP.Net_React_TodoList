@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using MyFirstProject.Server.Data.Interceptors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,11 +20,6 @@ builder.Services.AddOpenApi();
 
 // Lấy chuỗi kết nối từ file cấu hình (config)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// Cấu hình DbContext với PostgreSQL
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString)
-);
 
 // Cấu hình Identity
 builder.Services.AddIdentity<User, IdentityRole<int>>()
@@ -57,7 +53,20 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IAuthService, AuthService>()
                 .AddScoped<IPlanService, PlanService>()
                 .AddScoped<ITaskItemSerivce, TaskItemService>()
-                .AddScoped<ICloudinaryService, CloudinaryService>();
+                .AddScoped<ICloudinaryService, CloudinaryService>()
+                .AddScoped<IAssetService, AssetService>();
+
+// Đăng ký Interceptor để xóa file trên Cloudinary khi xóa bản ghi Asset
+builder.Services.AddScoped<CloudinaryDeleteInterceptor>();
+
+// Cấu hình DbContext với PostgreSQL
+builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+{
+    var interceptor = serviceProvider.GetRequiredService<CloudinaryDeleteInterceptor>();
+    options.UseNpgsql(connectionString)
+              .AddInterceptors(interceptor);
+}
+);
 
 // Sau khi cấu hình xong mới bắt đầu build ứng dụng
 var app = builder.Build();

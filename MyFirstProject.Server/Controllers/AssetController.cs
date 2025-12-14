@@ -33,11 +33,11 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<AssetResponseDto>>> UploadAssets([FromForm] List<IFormFile> files, [FromQuery] int planId, [FromQuery] int taskId)
+        public async Task<ActionResult<List<AssetResponseDto>>> UploadAssets([FromForm] UploadAssetDto uploadAssetDto)
         {
             try
             {
-                var uploadedAssets = await _assetService.UploadAssetsAsync(files, planId, taskId);
+                var uploadedAssets = await _assetService.UploadAssetsAsync(uploadAssetDto);
                 return Ok(uploadedAssets);
             }
             catch (Exception ex)

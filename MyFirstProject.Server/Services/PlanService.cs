@@ -69,7 +69,7 @@ namespace MyFirstProject.Server.Services
 
         public async Task<bool> DeletePlanAsync(int PlanId, int userId)
         {
-            var Plan = await _context.Plans.FindAsync(PlanId);
+            var Plan = await _context.Plans.Include(p=>p.Assets).FirstOrDefaultAsync(p=>p.Id==PlanId);
             if (Plan == null)
             {
                 return false;
