@@ -23,9 +23,9 @@ export interface AssetResponse {
 }
 
 export const assetService = {
-  getAsset: async (planId: string) => {
+  getAsset: async (planId: string, taskId?: string) => {
     const response = await api.get<AssetResponse[]>(`/assets`, {
-      params: { planId },
+      params: { planId, taskId },
     });
     return response.data;
   },

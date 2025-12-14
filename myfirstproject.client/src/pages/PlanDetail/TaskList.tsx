@@ -11,7 +11,10 @@ import {
   message,
   Tag,
   Select,
+  Tooltip,
 } from "antd";
+import FileList from "../../components/FileList";
+import FileUploader from "../../components/FileUploader";
 import { taskService, type TaskResponse } from "../../services/taskService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -19,6 +22,7 @@ import {
   DeleteOutlined,
   PlusOutlined,
   CheckCircleOutlined,
+  PaperClipOutlined
 } from "@ant-design/icons";
 import { useState } from "react";
 import dayjs from "dayjs";
@@ -101,7 +105,7 @@ const getStatusColor = (status: string) => {
   }
 };
 
-export default function TaskPage({planId}: {planId?: string}) {
+export default function TaskPage({ planId }: { planId?: string }) {
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -111,6 +115,12 @@ export default function TaskPage({planId}: {planId?: string}) {
     mode: "create" | "edit";
     editingId?: string;
   }>({ isOpen: false, mode: "create" });
+
+  const [attachmentModal, setAttachmentModal] = useState<{
+    isOpen: boolean;
+    taskId?: string;
+    taskName?: string;
+  }>({ isOpen: false });
 
   const [form] = Form.useForm();
 
@@ -220,19 +230,35 @@ export default function TaskPage({planId}: {planId?: string}) {
               }
               extra={
                 <div style={{ display: "flex", gap: 8 }}>
-                  <Button
-                    icon={<EditOutlined />}
-                    onClick={() => handleOpenEdit(task)}
-                  />
-                  <Popconfirm
-                    title="Delete the task"
-                    description="Are you sure to delete this task?"
-                    onConfirm={() => deleteMutation.mutate(task.id)}
-                    okText="Yes"
-                    cancelText="No"
-                  >
-                    <Button danger icon={<DeleteOutlined />} />
-                  </Popconfirm>
+                  <Tooltip title="Attachments">
+                    <Button
+                      icon={<PaperClipOutlined />}
+                      onClick={() => {
+                        setAttachmentModal({
+                          isOpen: true,
+                          taskId: task.id,
+                          taskName: task.name,
+                        });
+                      }}
+                    />
+                  </Tooltip>
+                  <Tooltip title="Edit Task">
+                    <Button
+                      icon={<EditOutlined />}
+                      onClick={() => handleOpenEdit(task)}
+                    />
+                  </Tooltip>
+                  <Tooltip title="Delete Task">
+                    <Popconfirm
+                      title="Delete the task"
+                      description="Are you sure to delete this task?"
+                      onConfirm={() => deleteMutation.mutate(task.id)}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Button danger icon={<DeleteOutlined />} />
+                    </Popconfirm>
+                  </Tooltip>
                 </div>
               }
             >
@@ -274,6 +300,25 @@ export default function TaskPage({planId}: {planId?: string}) {
             </Button>
           </div>
         </Form>
+      </Modal>
+
+      <Modal
+        title={`Attachments for: ${attachmentModal.taskName}`}
+        open={attachmentModal.isOpen}
+        onCancel={() =>
+          setAttachmentModal({ isOpen: false, taskId: undefined })
+        }
+        footer={null}
+        width={800}
+      >
+        <FileUploader
+          planId={planId!}
+          taskId={attachmentModal.taskId}
+          onSuccess={() => {}}
+        />
+        {attachmentModal.taskId && (
+          <FileList planId={planId!} taskId={attachmentModal.taskId} />
+        )}
       </Modal>
     </div>
   );

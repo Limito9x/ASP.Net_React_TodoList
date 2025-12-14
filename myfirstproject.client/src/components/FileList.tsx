@@ -1,50 +1,38 @@
-import {
-  Upload,
-  message,
-  Card,
-  Image,
-  Button,
-  Row,
-  Col,
-  Spin,
-  Empty,
-} from "antd";
+import { message, Card, Image, Button, Row, Col, Spin, Empty } from "antd";
 import {
   DeleteOutlined,
   FileImageOutlined,
   VideoCameraOutlined,
   FileOutlined,
   DownloadOutlined,
-  InboxOutlined,
 } from "@ant-design/icons";
-import { assetService, type AssetResponse } from "../../services/assetService";
+import { assetService, type AssetResponse } from "../services/assetService";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-export default function Asset({ planId }: { planId: string }) {
+export default function FileList({
+  planId,
+  taskId,
+}: {
+  planId: string;
+  taskId?: string;
+}) {
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
 
   const { data: assets, isLoading } = useQuery<AssetResponse[]>({
-    queryKey: ["assets", planId],
-    queryFn: () => assetService.getAsset(planId),
-  });
-
-  const uploadMutation = useMutation({
-    mutationFn: (files: File[]) => assetService.uploadAssets({ files, planId }),
-    onSuccess: () => {
-      messageApi.success("Uploaded successfully!");
-      queryClient.invalidateQueries({ queryKey: ["assets", planId] });
-    },
-    onError: () => {
-      messageApi.error("Upload failed!");
-    },
+    queryKey: ["assets", planId, taskId],
+    queryFn: () => assetService.getAsset(planId, taskId),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (assetId: string) => assetService.deleteAsset(assetId),
+    mutationFn: (asset: AssetResponse) => assetService.deleteAsset(asset.id),
     onSuccess: () => {
       messageApi.success("Asset deleted!");
-      queryClient.invalidateQueries({ queryKey: ["assets", planId] });
+      // Partial matching: invalidate tất cả query bắt đầu với ["assets", planId]
+      queryClient.invalidateQueries({
+        queryKey: ["assets", planId],
+        refetchType: "active",
+      });
     },
   });
 
@@ -141,7 +129,7 @@ export default function Asset({ planId }: { planId: string }) {
               type="text"
               danger
               icon={<DeleteOutlined />}
-              onClick={() => deleteMutation.mutate(asset.id)}
+              onClick={() => deleteMutation.mutate(asset)}
               loading={deleteMutation.isPending}
             >
               Delete
@@ -187,45 +175,20 @@ export default function Asset({ planId }: { planId: string }) {
   return (
     <>
       {contextHolder}
-      <div style={{ padding: "24px" }}>
-        <h1 style={{ marginBottom: 24 }}>My Assets</h1>
-
-        <Upload.Dragger
-          multiple
-          beforeUpload={(file) => {
-            uploadMutation.mutate([file]);
-            return false;
-          }}
-          showUploadList={false}
-          style={{ marginBottom: 24 }}
-        >
-          <p className="ant-upload-drag-icon">
-            <InboxOutlined />
-          </p>
-          <p className="ant-upload-text">
-            Click or drag files to this area to upload
-          </p>
-          <p className="ant-upload-hint">
-            Support for images, videos, and other files. Multiple uploads
-            supported.
-          </p>
-        </Upload.Dragger>
-
-        {isLoading ? (
-          <div style={{ textAlign: "center", padding: 50 }}>
-            <Spin size="large" />
-          </div>
-        ) : assets && assets.length > 0 ? (
-          <Row gutter={[16, 16]}>
-            {assets.map((asset) => renderAssetCard(asset))}
-          </Row>
-        ) : (
-          <Empty
-            description="No assets found. Upload some files to get started!"
-            style={{ marginTop: 40 }}
-          />
-        )}
-      </div>
+      {isLoading ? (
+        <div style={{ textAlign: "center", padding: 50 }}>
+          <Spin size="large" />
+        </div>
+      ) : assets && assets.length > 0 ? (
+        <Row gutter={[16, 16]}>
+          {assets.map((asset) => renderAssetCard(asset))}
+        </Row>
+      ) : (
+        <Empty
+          description="No assets found. Upload some files to get started!"
+          style={{ marginTop: 40 }}
+        />
+      )}
     </>
   );
 }
