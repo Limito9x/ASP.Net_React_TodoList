@@ -68,13 +68,18 @@ namespace MyFirstProject.Server.Services
             var assetDtoList = assetDtos.ToList();
             return assetDtoList;
         }
-        public async Task<List<AssetResponseDto>?> GetAssetsAsync(int planId, int userId)
+        public async Task<List<AssetResponseDto>?> GetAssetsAsync(int planId, int userId, int? taskId)
         {
-            return await _context.Assets
+            var result = _context.Assets
                 .Include(a => a.Plan)
-                .Where(a => a.PlanId == planId && a.Plan.UserId == userId)
-                .Select(a => a.ToDto())
-                .ToListAsync();
+                .Where(a => a.PlanId == planId && a.Plan.UserId == userId);
+            
+            if(taskId!=null)
+            {
+                result = result.Where(a => a.TaskId == taskId);
+            }
+
+            return await result.Select(a=>a.ToDto()).ToListAsync();
         }
     }
 }

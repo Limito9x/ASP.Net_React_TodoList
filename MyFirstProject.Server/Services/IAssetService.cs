@@ -7,6 +7,6 @@ namespace MyFirstProject.Server.Services
         public Task DeleteAssetAsync(string assetId);
         public Task<AssetResponseDto> UploadAssetAsync(IFormFile file, int planId, int? taskId);
         public Task<List<AssetResponseDto>> UploadAssetsAsync(UploadAssetDto uploadAssetDto);
-        public Task<List<AssetResponseDto>?> GetAssetsAsync(int planId, int userId);
+        public Task<List<AssetResponseDto>?> GetAssetsAsync(int planId, int userId, int? taskId);
     }
 }
