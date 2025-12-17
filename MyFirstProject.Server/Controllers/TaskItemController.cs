@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyFirstProject.Server.Dtos;
-using MyFirstProject.Server.Services.Task;
+using MyFirstProject.Server.Services.TaskItem;
 using System.Security.Claims;
 
 namespace MyFirstProject.Server.Controllers

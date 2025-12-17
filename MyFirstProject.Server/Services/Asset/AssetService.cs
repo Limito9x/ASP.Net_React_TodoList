@@ -6,7 +6,7 @@ using MyFirstProject.Server.Mappers;
 using MyFirstProject.Server.Models;
 using MyFirstProject.Server.Services.Cloud;
 
-namespace MyFirstProject.Server.Services.Asset
+namespace MyFirstProject.Server.Services.AssetService
 {
     public interface IAssetService
     {

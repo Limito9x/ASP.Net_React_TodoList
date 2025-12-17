@@ -6,13 +6,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.SemanticKernel;
 using MyFirstProject.Server.Data.Interceptors;
 using MyFirstProject.Server.Services.Auth;
 using MyFirstProject.Server.Services.Cloud;
 using MyFirstProject.Server.Services.Plan;
 using MyFirstProject.Server.Services.TaskItem;
 using MyFirstProject.Server.Services.AI;
-using MyFirstProject.Server.Services.Asset;
+using MyFirstProject.Server.Services.AssetService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,13 +55,19 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+var geminiApiKey = builder.Configuration["Gemini:ApiKey"];
+var modelId = "gemini-2.5-flash-lite";
+
+builder.Services.AddKernel()
+    .AddGoogleAIGeminiChatCompletion(modelId, apiKey: geminiApiKey);
+
 // Đăng ký dịch vụ tùy chỉnh
 builder.Services.AddScoped<IAuthService, AuthService>()
                 .AddScoped<IPlanService, PlanService>()
                 .AddScoped<ITaskItemSerivce, TaskItemService>()
                 .AddScoped<ICloudService, CloudinaryService>()
                 .AddScoped<IAssetService, AssetService>()
-                .AddScoped<IAIService, GeminiService>();
+                .AddScoped<IAIService, SemanticAIService>();
 
 // Đăng ký Interceptor để xóa file trên Cloudinary khi xóa bản ghi Asset
 builder.Services.AddScoped<CloudinaryDeleteInterceptor>();
