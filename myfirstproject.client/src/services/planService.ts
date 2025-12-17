@@ -4,6 +4,7 @@ export interface PlanPayload {
     title: string;
     description?: string;
     endDate?: string;
+    tasks?: TaskInPlanSuggestion[];
 }
 
 export interface PlanResponse {
@@ -13,6 +14,18 @@ export interface PlanResponse {
     startDate: string;
     endDate?: string;
     userId?: string;
+}
+
+export interface SuggestPlanResponse {
+    title: string;
+    description: string;
+    tasks: TaskInPlanSuggestion[];
+}
+
+export interface TaskInPlanSuggestion {
+    name: string;
+    description: string;
+    dayOffset: number;
 }
 
 export const planService = {
@@ -36,4 +49,8 @@ export const planService = {
     const response = await api.delete<void>(`/plans/${id}`);
     return response.data;
   },
+  suggestPlans: async (prompt: string) => {
+    const response = await api.post<SuggestPlanResponse>(`/plans/suggest`, { prompt });
+    return response.data;
+  }
 };

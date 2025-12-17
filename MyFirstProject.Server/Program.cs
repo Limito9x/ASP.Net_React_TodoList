@@ -1,13 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using MyFirstProject.Server.Data;
-using MyFirstProject.Server.Services;
 using MyFirstProject.Server.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using MyFirstProject.Server.Data.Interceptors;
+using MyFirstProject.Server.Services.Auth;
+using MyFirstProject.Server.Services.Cloud;
+using MyFirstProject.Server.Services.Plan;
+using MyFirstProject.Server.Services.TaskItem;
+using MyFirstProject.Server.Services.AI;
+using MyFirstProject.Server.Services.Asset;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,8 +58,9 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<IAuthService, AuthService>()
                 .AddScoped<IPlanService, PlanService>()
                 .AddScoped<ITaskItemSerivce, TaskItemService>()
-                .AddScoped<ICloudinaryService, CloudinaryService>()
-                .AddScoped<IAssetService, AssetService>();
+                .AddScoped<ICloudService, CloudinaryService>()
+                .AddScoped<IAssetService, AssetService>()
+                .AddScoped<IAIService, GeminiService>();
 
 // Đăng ký Interceptor để xóa file trên Cloudinary khi xóa bản ghi Asset
 builder.Services.AddScoped<CloudinaryDeleteInterceptor>();

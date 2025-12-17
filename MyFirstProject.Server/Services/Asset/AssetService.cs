@@ -4,15 +4,23 @@ using MyFirstProject.Server.Dtos;
 using MyFirstProject.Server.Helpers;
 using MyFirstProject.Server.Mappers;
 using MyFirstProject.Server.Models;
+using MyFirstProject.Server.Services.Cloud;
 
-namespace MyFirstProject.Server.Services
+namespace MyFirstProject.Server.Services.Asset
 {
+    public interface IAssetService
+    {
+        public Task DeleteAssetAsync(string assetId);
+        public Task<AssetResponseDto> UploadAssetAsync(IFormFile file, int planId, int? taskId);
+        public Task<List<AssetResponseDto>> UploadAssetsAsync(UploadAssetDto uploadAssetDto);
+        public Task<List<AssetResponseDto>?> GetAssetsAsync(int planId, int userId, int? taskId);
+    }
     public class AssetService: IAssetService
     {
         private readonly ApplicationDbContext _context;
-        private readonly ICloudinaryService _cloudinaryService;
+        private readonly ICloudService _cloudinaryService;
 
-        public AssetService(ICloudinaryService cloudinaryService, ApplicationDbContext context)
+        public AssetService(ICloudService cloudinaryService, ApplicationDbContext context)
         {
             _cloudinaryService = cloudinaryService;
            _context = context;

@@ -17,16 +17,32 @@ namespace MyFirstProject.Server.Mappers
                 EndDate = Plan.EndDate,
             };
         }
+
         // Map từ Dto sang Model cho trường hợp tạo mới dữ liệu
         public static Plan ToCreateModel(this CreatePlanDto PlanDto, int userId)
         {
-            return new Plan
+            var plan = new Plan
             {
                 Title = PlanDto.Title,
                 Description = PlanDto.Description,
                 EndDate = PlanDto.EndDate,
                 UserId = userId
             };
+
+            if (PlanDto.Tasks != null && PlanDto.Tasks.Any())
+            {
+                plan.TaskItems = PlanDto.Tasks
+                    .Select(taskDto => new TaskItem
+                    {
+                        Name = taskDto.Name,
+                        Description = taskDto.Description,
+                        DueDate = taskDto.DueDate,
+                        PlanId = plan.Id
+                    })
+                    .ToList();
+            }
+
+            return plan;
         }
 
         // Map từ Dto sang Model cho trường hợp cập nhật dữ liệu

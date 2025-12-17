@@ -3,9 +3,9 @@ using CloudinaryDotNet.Actions;
 using MyFirstProject.Server.Dtos;
 using MyFirstProject.Server.Models.Enums;
 
-namespace MyFirstProject.Server.Services
+namespace MyFirstProject.Server.Services.Cloud
 {
-    public class CloudinaryService : ICloudinaryService
+    public class CloudinaryService : ICloudService
     {
         private readonly Cloudinary _cloudinary;
         private readonly string baseFolder = "Plan Management Project";

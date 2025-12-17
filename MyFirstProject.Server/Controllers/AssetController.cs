@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyFirstProject.Server.Dtos;
-using MyFirstProject.Server.Services;
+using MyFirstProject.Server.Services.Asset;
 using System.Security.Claims;
 
 namespace MyFirstProject.Server.Controllers

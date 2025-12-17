@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyFirstProject.Server.Dtos;
-using MyFirstProject.Server.Services;
+using MyFirstProject.Server.Services.AI;
+using MyFirstProject.Server.Services.Plan;
 using System.Security.Claims;
 
 namespace MyFirstProject.Server.Controllers
@@ -12,10 +13,12 @@ namespace MyFirstProject.Server.Controllers
     public class PlanController : ControllerBase
     {
         private readonly IPlanService _PlanService;
+        private readonly IAIService _aiService;
 
-        public PlanController(IPlanService PlanService)
+        public PlanController(IPlanService PlanService, IAIService aiService)
         {
             _PlanService = PlanService;
+            _aiService = aiService;
         }
 
         [HttpPost]
@@ -24,7 +27,7 @@ namespace MyFirstProject.Server.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var createdPlan = await _PlanService.CreatePlanAsync(PlanDto,userId);
+                var createdPlan = await _PlanService.CreatePlanAsync(PlanDto, userId);
                 return Ok(createdPlan);
             }
             catch (Exception ex)
@@ -54,7 +57,7 @@ namespace MyFirstProject.Server.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var Plan = await _PlanService.GetPlanByIdAsync(PlanId,userId);
+                var Plan = await _PlanService.GetPlanByIdAsync(PlanId, userId);
                 if (Plan == null)
                 {
                     return NotFound();
@@ -101,6 +104,23 @@ namespace MyFirstProject.Server.Controllers
             }
             catch (Exception ex)
             {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("suggest")]
+        public async Task<IActionResult> GetPlanSuggestion([FromBody] PlanSuggestionDto suggestionDto)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                Console.WriteLine(suggestionDto.Prompt);
+                var planSuggestion = await _aiService.GeneratePlanJSONAsync(suggestionDto.Prompt);
+                return Ok(planSuggestion);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
                 return BadRequest(new { message = ex.Message });
             }
         }

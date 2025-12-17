@@ -230,6 +230,9 @@ export default function TaskPage({ planId }: { planId?: string }) {
               }
               extra={
                 <div style={{ display: "flex", gap: 8 }}>
+                  <Button type="link" href={`/plans/${planId}/tasks/${task.id}`}>
+                    Go to Task
+                  </Button>
                   <Tooltip title="Attachments">
                     <Button
                       icon={<PaperClipOutlined />}

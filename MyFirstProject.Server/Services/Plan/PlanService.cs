@@ -3,8 +3,16 @@ using MyFirstProject.Server.Data;
 using MyFirstProject.Server.Dtos;
 using MyFirstProject.Server.Mappers;
 
-namespace MyFirstProject.Server.Services
+namespace MyFirstProject.Server.Services.Plan
 {
+    public interface IPlanService
+    {
+        Task<PlanResponseDto> CreatePlanAsync(CreatePlanDto PlanDto, int userId);
+        Task<List<PlanResponseDto>> GetPlansByUserIdAsync(int userId);
+        Task<PlanResponseDto?> GetPlanByIdAsync(int PlanId, int userId);
+        Task<PlanResponseDto> UpdatePlanAsync(int PlanId, UpdatePlanDto PlanDto, int userId);
+        Task<bool> DeletePlanAsync(int PlanId, int userId);
+    }
     public class PlanService : IPlanService
     {
         private readonly ApplicationDbContext _context;
@@ -16,13 +24,13 @@ namespace MyFirstProject.Server.Services
 
         public async Task<PlanResponseDto> CreatePlanAsync(CreatePlanDto PlanDto, int userId)
         {
-            // B1. Mapper DTO sang Model
+            // Mapper DTO sang Model
             var Plan = PlanDto.ToCreateModel(userId);
-            // B2. Thêm vào CSDL
+            // Thêm vào CSDL
             await _context.Plans.AddAsync(Plan);
-            // B3. Lưu thay đổi
+            // Lưu thay đổi
             await _context.SaveChangesAsync();
-            // B4. Trả về DTO
+            // Trả về DTO
             return Plan.ToDto();
         }
 

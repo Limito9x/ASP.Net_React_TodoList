@@ -9,6 +9,14 @@ namespace MyFirstProject.Server.Dtos
         public string? Description { get; set; }
         public DateTime? EndDate { get; set; }
         public int UserId { get; set; }
+        public List<CreateTaskInPlanDto>? Tasks { get; set; }
+    }
+
+    public class CreateTaskInPlanDto
+    {
+        public required string Name { get; set; }
+        public string? Description { get; set; }
+        public DateTime? DueDate { get; set; }
     }
 
     public class UpdatePlanDto // Dto dùng để cap nhật Plan, bỏ đi userId vì trường này chỉ sử dụng khi tạo mới
@@ -26,5 +34,10 @@ namespace MyFirstProject.Server.Dtos
         public string? Description { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+    }
+
+    public class PlanSuggestionDto
+    {
+        public required string Prompt { get; set; }
     }
 }

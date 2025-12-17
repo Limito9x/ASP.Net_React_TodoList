@@ -3,8 +3,16 @@ using MyFirstProject.Server.Data;
 using MyFirstProject.Server.Dtos;
 using MyFirstProject.Server.Mappers;
 
-namespace MyFirstProject.Server.Services
+namespace MyFirstProject.Server.Services.TaskItem
 {
+    public interface ITaskItemSerivce
+    {
+        Task<TaskItemResponseDto> CreateTaskItemAsync(CreateTaskItemDto taskItemDto); // Riêng create không cần userId vì tạo mới nằm trong kế hoạch đã có userId
+        Task<List<TaskItemResponseDto>> GetTaskItemsByPlanIdAsync(int planId, int userId);
+        Task<TaskItemResponseDto?> GetTaskItemByIdAsync(int taskItemId, int userId);
+        Task<TaskItemResponseDto?> UpdateTaskItemByIdAsync(int taskId, UpdateTaskItemDto taskItemDto, int userId);
+        Task<bool> DeleteTaskItemByIdAsync(int taskId, int userId);
+    }
     public class TaskItemService: ITaskItemSerivce
     {
         private readonly ApplicationDbContext _context;

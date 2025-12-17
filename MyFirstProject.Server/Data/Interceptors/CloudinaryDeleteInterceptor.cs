@@ -1,15 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MyFirstProject.Server.Models;
-using MyFirstProject.Server.Services;
+using MyFirstProject.Server.Services.Cloud;
 
 namespace MyFirstProject.Server.Data.Interceptors
 {
     public class CloudinaryDeleteInterceptor : SaveChangesInterceptor
     {
-        private readonly ICloudinaryService _cloudinaryService;
+        private readonly ICloudService _cloudinaryService;
 
-        public CloudinaryDeleteInterceptor(ICloudinaryService cloudinaryService)
+        public CloudinaryDeleteInterceptor(ICloudService cloudinaryService)
         {
             _cloudinaryService = cloudinaryService;
         }

@@ -6,8 +6,19 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
-namespace MyFirstProject.Server.Services
+namespace MyFirstProject.Server.Services.Auth
 {
+    public interface IAuthService
+    {
+        // Đăng ký người dùng mới
+        Task<UserResponseDto> RegisterAsync(UserRegisterDto model);
+
+        // Đăng nhập người dùng
+        Task<LoginResponseDto> LoginAsync(UserLoginDto model);
+
+        // Lấy thông tin người dùng từ token JWT (nếu cần) --> check token
+        Task<UserResponseDto> GetUserProfileAsync(string userId);
+    }
     public class AuthService: IAuthService
     {
         // Sử dụng công cụ UserManager và SignInManager của ASP.NET Core Identity để quản lý người dùng và xác thực

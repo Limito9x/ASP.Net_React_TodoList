@@ -26,6 +26,7 @@ const planMappers = {
       description: values.description,
       // Chuyển Dayjs object sang ISO string cho Backend
       endDate: values.endDate ? values.endDate.toISOString() : null,
+      tasks: values.tasks || [], // Thêm dòng này để đảm bảo có tasks
     };
   },
 
@@ -57,6 +58,69 @@ const PlanFormFields = () => (
     <Form.Item label="End Date" name="endDate">
       <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
     </Form.Item>
+    <div style={{ marginTop: 20 }}>
+      <h4>Tasks List</h4>
+      <Form.List name="tasks">
+        {(fields, { add, remove }) => (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {fields.map(({ key, name, ...restField }) => (
+              <Card
+                key={key}
+                size="small"
+                title={`Task ${name + 1}`}
+                extra={
+                  <Button
+                    danger
+                    type="text"
+                    icon={<DeleteOutlined />}
+                    onClick={() => remove(name)}
+                  />
+                }
+              >
+                <Form.Item
+                  {...restField}
+                  name={[name, "name"]} // Khớp với formValues ở trên
+                  rules={[{ required: true, message: "Missing task name" }]}
+                  style={{ marginBottom: 8 }}
+                >
+                  <Input placeholder="Task Name" />
+                </Form.Item>
+
+                <Form.Item
+                  {...restField}
+                  name={[name, "description"]}
+                  style={{ marginBottom: 8 }}
+                >
+                  <Input.TextArea placeholder="Task Description" />
+                </Form.Item>
+
+                {/* DatePicker này sẽ nhận giá trị ngày cụ thể đã tính toán */}
+                <Form.Item
+                  {...restField}
+                  name={[name, "dueDate"]}
+                  label="Due Date"
+                  style={{ marginBottom: 0 }}
+                >
+                  <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
+                </Form.Item>
+              </Card>
+            ))}
+
+            <Button
+              type="dashed"
+              style={{
+                margin: 2
+              }}
+              onClick={() => add()}
+              block
+              icon={<PlusOutlined />}
+            >
+              Add Task manually
+            </Button>
+          </div>
+        )}
+      </Form.List>
+    </div>
   </>
 );
 
@@ -79,7 +143,38 @@ export default function PlanPage() {
     queryFn: planService.getAllPlans,
   });
 
-  console.log("Plans data:", plans);
+  const mutation = useMutation({
+    mutationFn: (prompt: string) => planService.suggestPlans(prompt),
+    onSuccess: (aiData) => {
+      messageApi.success("Plans suggested successfully!");
+      console.log("Suggested Plans:", aiData);
+      // 1. Mở Modal ở chế độ Create
+      setModalState({ isOpen: true, mode: "create" });
+
+      // 2. Tính toán ngày tháng cho các Task
+      const today = dayjs();
+
+      const formValues = {
+        title: aiData.title,
+        description: aiData.description,
+        endDate: today.add(30, "day"), // Giả sử plan 1 tháng
+
+        // Map danh sách task từ AI
+        tasks: aiData.tasks.map((t: any) => ({
+          name: t.name, // Backend AI trả về 'name'
+          description: t.description,
+
+          // --- LOGIC TÍNH NGÀY Ở ĐÂY ---
+          // Nếu AI có dayOffset -> Cộng vào hôm nay -> Ra DatePicker
+          dueDate: t.dayOffset !== null ? today.add(t.dayOffset, "day") : null,
+        })),
+      };
+
+      // 3. Đổ dữ liệu vào Form
+      form.setFieldsValue(formValues);
+    },
+    onError: () => messageApi.error("Failed to suggest plans."),
+  });
 
   // --- MUTATIONS ---
   const createMutation = useMutation({
@@ -134,6 +229,14 @@ export default function PlanPage() {
     // Sử dụng Mapper để chuẩn bị dữ liệu gửi đi
     const payload = planMappers.toApiPayload(values);
 
+    if (values.tasks) {
+      payload.tasks = values.tasks.map((t: any) => ({
+        name: t.name,
+        description: t.description,
+        dayOffset: t.dueDate ? dayjs(t.dueDate).diff(dayjs(), "day") : null,
+      }));
+    }
+
     if (modalState.mode === "create") {
       createMutation.mutate(payload);
     } else if (modalState.mode === "edit" && modalState.editingId) {
@@ -152,6 +255,17 @@ export default function PlanPage() {
         }}
       >
         <h1>My Plans</h1>
+        <Input.Search
+          placeholder="Suggest plans (e.g., trip to Japan)"
+          enterButton="Suggest"
+          loading={mutation.isPending}
+          onSearch={(value) => {
+            if (value.trim()) {
+              mutation.mutate(value.trim());
+            }
+          }}
+          style={{ width: 400, marginRight: 16 }}
+        />
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -210,7 +324,7 @@ export default function PlanPage() {
         open={modalState.isOpen}
         onCancel={handleCloseModal}
         footer={null}
-        destroyOnClose
+        width={"50vw"}
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <PlanFormFields />

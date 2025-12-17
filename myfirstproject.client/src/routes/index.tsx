@@ -3,6 +3,7 @@ import RootLayout from "../layout/RootLayout";
 import Home from "../pages/Home";
 import PlanPage from "../pages/Plan";
 import TaskIndexPage from "../pages/PlanDetail";
+import Task from "../pages/Task";
 import LoginPage from "../pages/Auth/LoginPage";
 import RegisterPage from "../pages/Auth/RegisterPage";
 
@@ -23,6 +24,10 @@ export const AppRoutes = () => {
                 {
                     path: "plans/:planId",
                     element: <TaskIndexPage />
+                },
+                {
+                    path: "plans/:planId/tasks/:taskId",
+                    element: <Task />
                 }
             ]
         },
