@@ -1,4 +1,5 @@
 ﻿using MyFirstProject.Server.Models.Enums;
+using System.Collections.ObjectModel;
 
 namespace MyFirstProject.Server.Models
 {
@@ -14,6 +15,6 @@ namespace MyFirstProject.Server.Models
         public TodoStatus Status { get; set; } = TodoStatus.Todo;
         public int PlanId { get; set; }
         public Plan? Plan { get; set; }
-        public ICollection<Asset>? Assets { get; set; }
+        public List<Asset>? Assets { get; set; }
     }
 }

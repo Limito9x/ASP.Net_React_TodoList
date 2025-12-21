@@ -8,6 +8,7 @@ import {
   LogoutOutlined,
   AppstoreOutlined,
   MenuOutlined,
+  ToolOutlined
 } from "@ant-design/icons";
 import { useState } from "react";
 
@@ -22,6 +23,12 @@ const navigations = [
     icon: <AppstoreOutlined />,
     path: "/plans",
   },
+  {
+    key: "template",
+    label: "Template",
+    icon: <ToolOutlined />,
+    path: "/template",
+  }
 ];
 
 export default function Header() {

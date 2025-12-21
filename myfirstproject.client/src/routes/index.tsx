@@ -4,6 +4,7 @@ import Home from "../pages/Home";
 import PlanPage from "../pages/Plan";
 import TaskIndexPage from "../pages/PlanDetail";
 import Task from "../pages/Task";
+import TemplatePage from "../pages/Template";
 import LoginPage from "../pages/Auth/LoginPage";
 import RegisterPage from "../pages/Auth/RegisterPage";
 
@@ -16,6 +17,10 @@ export const AppRoutes = () => {
                 {
                     index: true,
                     element: <Home />
+                },
+                {
+                    path: "template",
+                    element: <TemplatePage />
                 },
                 {
                     path: "plans",
