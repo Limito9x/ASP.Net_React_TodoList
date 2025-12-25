@@ -7,13 +7,22 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.SemanticKernel;
+using Mapster;
+using MapsterMapper;
+using System.Reflection;
 using MyFirstProject.Server.Data.Interceptors;
 using MyFirstProject.Server.Services.Auth;
 using MyFirstProject.Server.Services.Cloud;
 using MyFirstProject.Server.Services.Plan;
-using MyFirstProject.Server.Services.TaskItem;
+using MyFirstProject.Server.Services.SingleTask;
 using MyFirstProject.Server.Services.AI;
 using MyFirstProject.Server.Services.AssetService;
+using MyFirstProject.Server.Services.AssetLink;
+using MyFirstProject.Server.Services.UserService;
+using MyFirstProject.Server.Services.Routine;
+using MyFirstProject.Server.Services.TaskLog;
+using MyFirstProject.Server.Services.Form;
+using MyFirstProject.Server.Services.Phase;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +35,8 @@ builder.Services.AddOpenApi();
 
 // Lấy chuỗi kết nối từ file cấu hình (config)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddHttpContextAccessor();
 
 // Cấu hình Identity
 builder.Services.AddIdentity<User, IdentityRole<int>>()
@@ -61,13 +72,27 @@ var modelId = "gemini-2.5-flash-lite";
 builder.Services.AddKernel()
     .AddGoogleAIGeminiChatCompletion(modelId, apiKey: geminiApiKey);
 
+// Cấu hình Mapster
+var config = TypeAdapterConfig.GlobalSettings;
+config.Scan(Assembly.GetExecutingAssembly());
+
+builder.Services.AddSingleton(config);
+
 // Đăng ký dịch vụ tùy chỉnh
 builder.Services.AddScoped<IAuthService, AuthService>()
+                .AddScoped<ICurrentUserService, CurrentUserService>()
                 .AddScoped<IPlanService, PlanService>()
-                .AddScoped<ITaskItemSerivce, TaskItemService>()
+                .AddScoped<ISingleTaskService, SingleTaskService>()
                 .AddScoped<ICloudService, CloudinaryService>()
                 .AddScoped<IAssetService, AssetService>()
-                .AddScoped<IAIService, SemanticAIService>();
+                .AddScoped<IAIService, SemanticAIService>()
+                .AddScoped<IAssetLinkService, AssetLinkService>()
+                .AddScoped<IRoutineService, RoutineService>()
+                .AddScoped<ITaskLogService, TaskLogService>()
+                .AddScoped<IFormService, FormService>()
+                .AddScoped<IPhaseService, PhaseService>()
+                .AddScoped<IMapper, ServiceMapper>();
+
 
 // Đăng ký Interceptor để xóa file trên Cloudinary khi xóa bản ghi Asset
 builder.Services.AddScoped<CloudinaryDeleteInterceptor>();

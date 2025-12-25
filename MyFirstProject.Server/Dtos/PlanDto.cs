@@ -1,43 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace MyFirstProject.Server.Dtos
+﻿namespace MyFirstProject.Server.Dtos
 {
-    public class CreatePlanDto // Dto dùng để tạo mới Plan 
-    {
-        [Required]
-        public required string Title { get; set; }
-        public string? Description { get; set; }
-        public DateTime? EndDate { get; set; }
-        public int UserId { get; set; }
-        public List<CreateTaskInPlanDto>? Tasks { get; set; }
-    }
+    public record RequestPlanDto
+    (
+        string Title,
+        string? Description,
+        DateTime? StartDate,
+        DateTime? EndAt,
+        List<RequestPhaseDto>? Phases
+    );
 
-    public class CreateTaskInPlanDto
-    {
-        public required string Name { get; set; }
-        public string? Description { get; set; }
-        public DateTime? DueDate { get; set; }
-    }
+    public record ResponsePlanDto
+    (
+        int Id,
+        string Title,
+        string? Description,
+        decimal? Progress,
+        DateTime? StartDate,
+        DateTime? EndAt,
+        DateTime CreatedAt,
+        DateTime? UpdatedAt,
+        List <SimpleResponsePhaseDto>? Phases
+    );
 
-    public class UpdatePlanDto // Dto dùng để cap nhật Plan, bỏ đi userId vì trường này chỉ sử dụng khi tạo mới
-    {
-        [Required]
-        public required string Title { get; set; }
-        public string? Description { get; set; }
-        public DateTime? EndDate { get; set; }
-    }
-
-    public class PlanResponseDto
-    {
-        public int Id { get; set; }
-        public required string Title { get; set; }
-        public string? Description { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-    }
-
-    public class PlanSuggestionDto
-    {
-        public required string Prompt { get; set; }
-    }
+    public record SuggestPlanDto
+    (
+        string Prompt
+    );
 }

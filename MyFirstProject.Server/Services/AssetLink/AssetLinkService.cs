@@ -1,0 +1,45 @@
+﻿using Microsoft.EntityFrameworkCore;
+using MyFirstProject.Server.Data;
+using MyFirstProject.Server.Models.Enums;
+using MyFirstProject.Server.Services.UserService;
+
+namespace MyFirstProject.Server.Services.AssetLink
+{
+    public interface IAssetLinkService
+    {
+        Task AddAssetLinkAsync(int assetId ,int linkedId, AssetLinkType linkType);
+        Task RemoveAssetLinkByAsync(int linkedId, AssetLinkType linkType);
+    }
+    public class AssetLinkService: IAssetLinkService
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly ICurrentUserService _currentUserService;
+        public AssetLinkService(ApplicationDbContext context, ICurrentUserService currentUserService)
+        {
+            _context = context;
+            _currentUserService = currentUserService;
+        }
+
+        public async Task AddAssetLinkAsync(int assetId,int linkedId, AssetLinkType linkType)
+        {
+            var userId = _currentUserService.UserId;
+            var assetLink = new Models.AssetLink
+            {
+                AssetId = assetId,
+                LinkedId = linkedId,
+                LinkedType = linkType,
+                UserId = userId
+            };
+            _context.AssetLinks.Add(assetLink);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task RemoveAssetLinkByAsync(int linkedId, AssetLinkType linkType)
+        {
+            var assetLinks = _context.AssetLinks
+                .Where(al => al.LinkedId == linkedId && al.LinkedType == linkType).Include(al=>al.Asset);
+            _context.AssetLinks.RemoveRange(assetLinks);
+            await _context.SaveChangesAsync();
+        }
+    }
+}

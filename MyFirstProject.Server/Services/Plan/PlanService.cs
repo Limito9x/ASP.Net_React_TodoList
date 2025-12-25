@@ -1,91 +1,89 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using MyFirstProject.Server.Data;
 using MyFirstProject.Server.Dtos;
-using MyFirstProject.Server.Mappers;
+using MyFirstProject.Server.Models.Enums;
+using MyFirstProject.Server.Services.AssetLink;
+using MyFirstProject.Server.Services.UserService;
 
 namespace MyFirstProject.Server.Services.Plan
 {
     public interface IPlanService
     {
-        Task<PlanResponseDto> CreatePlanAsync(CreatePlanDto PlanDto, int userId);
-        Task<List<PlanResponseDto>> GetPlansByUserIdAsync(int userId);
-        Task<PlanResponseDto?> GetPlanByIdAsync(int PlanId, int userId);
-        Task<PlanResponseDto> UpdatePlanAsync(int PlanId, UpdatePlanDto PlanDto, int userId);
-        Task<bool> DeletePlanAsync(int PlanId, int userId);
+        Task<ResponsePlanDto> CreatePlanAsync(RequestPlanDto PlanDto);
+        Task<List<ResponsePlanDto>> GetPlansByUserIdAsync();
+        Task<ResponsePlanDto?> GetPlanByIdAsync(int PlanId);
+        Task<ResponsePlanDto?> UpdatePlanAsync(int PlanId, RequestPlanDto PlanDto);
+        Task<bool> DeletePlanAsync(int PlanId);
     }
     public class PlanService : IPlanService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IAssetLinkService _assetLinkService;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IMapper _mapper;
 
-        public PlanService(ApplicationDbContext context)
+        public PlanService(
+            ApplicationDbContext context,
+            IAssetLinkService assetLinkService,
+            ICurrentUserService currentUserService,
+            IMapper mapper
+            )
         {
             _context = context;
+            _assetLinkService = assetLinkService;
+            _currentUserService = currentUserService;
+            _mapper = mapper;
         }
 
-        public async Task<PlanResponseDto> CreatePlanAsync(CreatePlanDto PlanDto, int userId)
+        public async Task<ResponsePlanDto> CreatePlanAsync(RequestPlanDto PlanDto)
         {
+            var userId = _currentUserService.UserId;
             // Mapper DTO sang Model
-            var Plan = PlanDto.ToCreateModel(userId);
+            var Plan = _mapper.Map<Models.Plan>(PlanDto);
             // Thêm vào CSDL
             await _context.Plans.AddAsync(Plan);
             // Lưu thay đổi
             await _context.SaveChangesAsync();
             // Trả về DTO
-            return Plan.ToDto();
+            return _mapper.Map<ResponsePlanDto>(Plan);
         }
 
-        public async Task<PlanResponseDto?> GetPlanByIdAsync(int PlanId, int userId)
+        public async Task<ResponsePlanDto?> GetPlanByIdAsync(int PlanId)
         {
+            var userId = _currentUserService.UserId;
             var Plan = await _context.Plans.FindAsync(PlanId);
-            if (Plan == null) { 
-                throw new KeyNotFoundException("Plan not found");
-            }
-            if(Plan.UserId != userId)
-            {
-                throw new UnauthorizedAccessException("You do not have access to this Plan");
-            }
-            return Plan?.ToDto();
+            if (Plan == null) return null;
+            _currentUserService.CheckAuthorized(Plan.UserId, nameof(Models.Plan));
+            return _mapper.Map<ResponsePlanDto>(Plan);
         }
 
-        public async Task<List<PlanResponseDto>> GetPlansByUserIdAsync(int userId)
+        public async Task<List<ResponsePlanDto>> GetPlansByUserIdAsync()
         {
+            var userId = _currentUserService.UserId;
             var plans = await _context.Plans
                 .Where(p => p.UserId == userId)
                 .OrderByDescending(p => p.StartDate)
-                .Select(p => p.ToDto())
                 .ToListAsync();
 
-            return plans;
+            return _mapper.Map<List<ResponsePlanDto>>(plans);
         }
 
-        public async Task<PlanResponseDto> UpdatePlanAsync(int PlanId, UpdatePlanDto PlanDto, int userId)
+        public async Task<ResponsePlanDto?> UpdatePlanAsync(int PlanId, RequestPlanDto PlanDto)
         {
+            var userId = _currentUserService.UserId;
             var plan = await _context.Plans.FindAsync(PlanId);
-            if (plan == null)
-            {
-                throw new KeyNotFoundException("Plan not found");
-            }
-            if (plan.UserId != userId)
-            {
-                throw new UnauthorizedAccessException("You do not have access to this Plan");
-            }
-            plan.UpdateFromDto(PlanDto);
-            // Lưu thay đổi
+            if (plan == null) return null;
             await _context.SaveChangesAsync();
-            return plan.ToDto();
+            return _mapper.Map<ResponsePlanDto>(plan);
         }
 
-        public async Task<bool> DeletePlanAsync(int PlanId, int userId)
+        public async Task<bool> DeletePlanAsync(int PlanId)
         {
-            var Plan = await _context.Plans.Include(p=>p.Assets).FirstOrDefaultAsync(p=>p.Id==PlanId);
-            if (Plan == null)
-            {
-                return false;
-            }
-            if (Plan.UserId != userId)
-            {
-                throw new UnauthorizedAccessException("You do not have access to this Plan");
-            }
+            var userId = _currentUserService.UserId;
+            var Plan = await _context.Plans.FirstOrDefaultAsync(p=>p.Id==PlanId);
+            if (Plan == null) return false;
+            await _assetLinkService.RemoveAssetLinkByAsync(PlanId, AssetLinkType.PLAN);
             _context.Plans.Remove(Plan);
             await _context.SaveChangesAsync();
             return true;

@@ -1,10 +1,10 @@
 ﻿namespace MyFirstProject.Server.Models.Enums
 {
-    public enum TodoStatus
+    public enum SingleTaskStatus
     {
-        Todo,
-        InProgress,
+        Pending,
         Completed,
-        Overdue
+        Cancelled,
+        Archived
     }
 }

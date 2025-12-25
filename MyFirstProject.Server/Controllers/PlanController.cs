@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using MyFirstProject.Server.Dtos;
 using MyFirstProject.Server.Services.AI;
 using MyFirstProject.Server.Services.Plan;
-using System.Security.Claims;
 
 namespace MyFirstProject.Server.Controllers
 {
@@ -22,12 +21,11 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<PlanResponseDto>> CreatePlan([FromBody] CreatePlanDto PlanDto)
+        public async Task<ActionResult<ResponsePlanDto>> CreatePlan([FromBody] RequestPlanDto PlanDto)
         {
             try
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var createdPlan = await _PlanService.CreatePlanAsync(PlanDto, userId);
+                var createdPlan = await _PlanService.CreatePlanAsync(PlanDto);
                 return Ok(createdPlan);
             }
             catch (Exception ex)
@@ -37,12 +35,11 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<PlanResponseDto>>> GetCategories()
+        public async Task<ActionResult<List<ResponsePlanDto>>> GetPlans()
         {
             try
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var plans = await _PlanService.GetPlansByUserIdAsync(userId);
+                var plans = await _PlanService.GetPlansByUserIdAsync();
                 return Ok(plans);
             }
             catch (Exception ex)
@@ -52,12 +49,11 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpGet("{PlanId}")]
-        public async Task<ActionResult<PlanResponseDto>> GetPlanById(int PlanId)
+        public async Task<ActionResult<ResponsePlanDto>> GetPlanById(int PlanId)
         {
             try
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var Plan = await _PlanService.GetPlanByIdAsync(PlanId, userId);
+                var Plan = await _PlanService.GetPlanByIdAsync(PlanId);
                 if (Plan == null)
                 {
                     return NotFound();
@@ -71,12 +67,11 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpPut("{PlanId}")]
-        public async Task<ActionResult<PlanResponseDto>> UpdatePlan(int PlanId, [FromBody] UpdatePlanDto PlanDto)
+        public async Task<ActionResult<ResponsePlanDto>> UpdatePlan(int PlanId, [FromBody] RequestPlanDto PlanDto)
         {
             try
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var updatedPlan = await _PlanService.UpdatePlanAsync(PlanId, PlanDto, userId);
+                var updatedPlan = await _PlanService.UpdatePlanAsync(PlanId, PlanDto);
                 return Ok(updatedPlan);
             }
             catch (KeyNotFoundException)
@@ -94,8 +89,7 @@ namespace MyFirstProject.Server.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var result = await _PlanService.DeletePlanAsync(PlanId, userId);
+                var result = await _PlanService.DeletePlanAsync(PlanId);
                 if (!result)
                 {
                     return NotFound();
@@ -109,12 +103,10 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpPost("suggest")]
-        public async Task<IActionResult> GetPlanSuggestion([FromBody] PlanSuggestionDto suggestionDto)
+        public async Task<IActionResult> GetPlanSuggestion([FromBody] SuggestPlanDto suggestionDto)
         {
             try
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                Console.WriteLine(suggestionDto.Prompt);
                 var planSuggestion = await _aiService.GeneratePlanJSONAsync(suggestionDto.Prompt);
                 return Ok(planSuggestion);
             }

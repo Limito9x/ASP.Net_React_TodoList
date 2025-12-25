@@ -28,7 +28,7 @@ export default function FormPreview({
                   <Form.Item
                     key={field.id}
                     label={field?.label || `Field ${fieldIndex + 1}`}
-                    name={[row.name, "fields", field.name, "value"]}
+                    name={[field.id, "value"]}
                     style={{ flex: 1, marginRight: 8 }}
                   >
                     <DynamicField type={field?.type} />

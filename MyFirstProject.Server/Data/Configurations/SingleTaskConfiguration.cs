@@ -4,9 +4,9 @@ using MyFirstProject.Server.Models;
 
 namespace MyFirstProject.Server.Data.Configurations
 {
-    public class TaskItemConfiguration: IEntityTypeConfiguration<TaskItem>
+    public class SingleTaskConfiguration: IEntityTypeConfiguration<SingleTask>
     {
-        public void Configure(EntityTypeBuilder<TaskItem> builder)
+        public void Configure(EntityTypeBuilder<SingleTask> builder)
         {
             builder.ToTable("Tasks");
             builder.HasKey(t => t.Id);
@@ -21,10 +21,7 @@ namespace MyFirstProject.Server.Data.Configurations
             builder.Property(t => t.CompletedAt);
             builder.Property(t => t.Status)
                 .HasConversion<string>();
-            builder.HasOne(t => t.Plan)
-                .WithMany(c => c.TaskItems)
-                .HasForeignKey(t => t.PlanId)
-                .OnDelete(DeleteBehavior.Cascade);
+            
         }
     }
 }

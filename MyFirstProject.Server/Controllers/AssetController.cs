@@ -18,12 +18,12 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<AssetResponseDto>>> GetAssets([FromQuery] int planId, [FromQuery] int? taskId)
+        public async Task<ActionResult<List<AssetResponseDto>>> GetAssets([FromQuery] RequestQueryAssetDto queryDto)
         {
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                var assets = await _assetService.GetAssetsAsync(planId, userId, taskId);
+                var assets = await _assetService.GetAssetsAsync(queryDto);
                 return Ok(assets);
             }
             catch (Exception ex)

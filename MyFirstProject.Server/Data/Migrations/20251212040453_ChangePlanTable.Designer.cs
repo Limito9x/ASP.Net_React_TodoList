@@ -228,7 +228,7 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.ToTable("RefreshTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MyFirstProject.Server.Models.TaskItem", b =>
+            modelBuilder.Entity("MyFirstProject.Server.Models.SingleTask", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -412,10 +412,10 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("MyFirstProject.Server.Models.TaskItem", b =>
+            modelBuilder.Entity("MyFirstProject.Server.Models.SingleTask", b =>
                 {
                     b.HasOne("MyFirstProject.Server.Models.Plan", "Plan")
-                        .WithMany("TaskItems")
+                        .WithMany("SingleTasks")
                         .HasForeignKey("PlanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -425,7 +425,7 @@ namespace MyFirstProject.Server.Data.Migrations
 
             modelBuilder.Entity("MyFirstProject.Server.Models.Plan", b =>
                 {
-                    b.Navigation("TaskItems");
+                    b.Navigation("SingleTasks");
                 });
 
             modelBuilder.Entity("MyFirstProject.Server.Models.User", b =>

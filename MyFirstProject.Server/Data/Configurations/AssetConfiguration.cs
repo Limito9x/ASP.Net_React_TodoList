@@ -26,16 +26,6 @@ namespace MyFirstProject.Server.Data.Configurations
                 .IsRequired();
             builder.Property(a => a.CreatedAt)
                 .IsRequired();
-            builder.HasOne(a => a.Plan)
-                .WithMany(p => p.Assets)
-                .HasForeignKey(a => a.PlanId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(a => a.Task)
-                .WithMany(t => t.Assets)
-                .HasForeignKey(a => a.TaskId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

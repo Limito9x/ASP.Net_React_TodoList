@@ -1,29 +1,43 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using MyFirstProject.Server.Data;
 using MyFirstProject.Server.Dtos;
 using MyFirstProject.Server.Helpers;
-using MyFirstProject.Server.Mappers;
 using MyFirstProject.Server.Models;
+using MyFirstProject.Server.Models.Enums;
+using MyFirstProject.Server.Services.AssetLink;
 using MyFirstProject.Server.Services.Cloud;
+using MyFirstProject.Server.Services.UserService;
 
 namespace MyFirstProject.Server.Services.AssetService
 {
     public interface IAssetService
     {
         public Task DeleteAssetAsync(string assetId);
-        public Task<AssetResponseDto> UploadAssetAsync(IFormFile file, int planId, int? taskId);
+        public Task<AssetResponseDto> UploadAssetAsync(IFormFile file, int linkedId, AssetLinkType assetLinkType);
         public Task<List<AssetResponseDto>> UploadAssetsAsync(UploadAssetDto uploadAssetDto);
-        public Task<List<AssetResponseDto>?> GetAssetsAsync(int planId, int userId, int? taskId);
+        public Task<List<AssetResponseDto>?> GetAssetsAsync(RequestQueryAssetDto queryDto);
     }
     public class AssetService: IAssetService
     {
         private readonly ApplicationDbContext _context;
         private readonly ICloudService _cloudinaryService;
+        private readonly IAssetLinkService _assetLinkService;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IMapper _mapper;
 
-        public AssetService(ICloudService cloudinaryService, ApplicationDbContext context)
+        public AssetService(ICloudService cloudinaryService,
+            ApplicationDbContext context,
+            IMapper mapper, 
+            IAssetLinkService assetLinkService,
+            ICurrentUserService currentUserService
+            )
         {
             _cloudinaryService = cloudinaryService;
-           _context = context;
+            _context = context;
+            _mapper = mapper;
+            _assetLinkService = assetLinkService;
+            _currentUserService = currentUserService;
         }
 
         public async Task DeleteAssetAsync(string assetId)
@@ -37,10 +51,10 @@ namespace MyFirstProject.Server.Services.AssetService
             await _context.SaveChangesAsync();
 
         }
-        public async Task<AssetResponseDto> UploadAssetAsync(IFormFile file, int planId, int? taskId)
+        public async Task<AssetResponseDto> UploadAssetAsync(IFormFile file, int LinkedId, AssetLinkType assetLinkType)
         {
             var cloudResult =  _cloudinaryService.UploadFileAsync(file);
-
+            var userId = _currentUserService.UserId;
             var asset = new Asset
             {
                 FileName = file.FileName,
@@ -50,44 +64,31 @@ namespace MyFirstProject.Server.Services.AssetService
                 FileSize = file.Length,
                 Type = FileHelper.GetFileType(file.FileName),
                 CreatedAt = DateTime.UtcNow,
-                PlanId = planId,
-                TaskId = taskId
+                UserId = userId
             };
 
             _context.Assets.Add(asset);
             await _context.SaveChangesAsync();
-            return asset.ToDto();
+            await _assetLinkService.AddAssetLinkAsync(asset.Id, LinkedId, assetLinkType);
+            return _mapper.Map<AssetResponseDto>(asset);
         }
         public async Task<List<AssetResponseDto>> UploadAssetsAsync(UploadAssetDto assetDto)
         {
             var files = assetDto.Files;
-            var planId = assetDto.PlanId;
-            var taskId = assetDto.TaskId ?? null;
-            if(taskId!=null)
-            {
-                var taskExists = await _context.TaskItems.AnyAsync(t => t.Id == taskId && t.PlanId == planId);
-                if (!taskExists)
-                {
-                    throw new Exception("Task does not exist in the specified plan.");
-                }
-            }
-            var uploadTasks = files.Select(file => UploadAssetAsync(file, planId, taskId));
+            var uploadTasks = files.Select(file => UploadAssetAsync(file, assetDto.LinkedId, assetDto.LinkedType));
             var assetDtos = await Task.WhenAll(uploadTasks);
             var assetDtoList = assetDtos.ToList();
             return assetDtoList;
         }
-        public async Task<List<AssetResponseDto>?> GetAssetsAsync(int planId, int userId, int? taskId)
+        public async Task<List<AssetResponseDto>?> GetAssetsAsync(RequestQueryAssetDto queryDto)
         {
-            var result = _context.Assets
-                .Include(a => a.Plan)
-                .Where(a => a.PlanId == planId && a.Plan.UserId == userId);
-            
-            if(taskId!=null)
-            {
-                result = result.Where(a => a.TaskId == taskId);
-            }
+            var linkedId = queryDto.LinkedId;
+            var assetLinkType = queryDto.LinkedType;
+            var result = await _context.Assets
+                .Include(a => a.AssetLink)
+                .Where(a => a.AssetLink.LinkedId == linkedId && a.AssetLink.LinkedType == assetLinkType).ToListAsync();
 
-            return await result.Select(a=>a.ToDto()).ToListAsync();
+            return _mapper.Map<List<AssetResponseDto>>(result);
         }
     }
 }
