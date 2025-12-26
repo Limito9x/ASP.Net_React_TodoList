@@ -9,130 +9,79 @@ import {
   Card,
   Spin,
   message,
+  Steps,
 } from "antd";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { planService, type PlanResponse } from "../../services/planService";
+import CreatePlan from "./CreatePlan";
 
 // --- 1. MAPPERS (Chuyển đổi dữ liệu) ---
 // Có thể tách sang file utils/mappers.ts nếu muốn
 const planMappers = {
   // Chuyển dữ liệu từ Form (AntD) -> API Payload (JSON)
   toApiPayload: (values: any) => {
-    return {
-      title: values.title, // Thống nhất dùng chữ 'title'
+    const payload: any = {
+      title: values.title,
       description: values.description,
-      // Chuyển Dayjs object sang ISO string cho Backend
+      startDate: values.startDate ? values.startDate.toISOString() : null,
       endDate: values.endDate ? values.endDate.toISOString() : null,
-      tasks: values.tasks || [], // Thêm dòng này để đảm bảo có tasks
     };
-  },
 
+    // Xử lý phases nếu có
+    if (values.phases && Array.isArray(values.phases)) {
+      payload.phases = values.phases.map((phase: any) => ({
+        title: phase.title,
+        description: phase.description,
+        startDate: phase.startDate ? phase.startDate.toISOString() : null,
+        endDate: phase.endDate ? phase.endDate.toISOString() : null,
+        // Xử lý goals cho mỗi phase
+        goals:
+          phase.goals && Array.isArray(phase.goals)
+            ? phase.goals.map((goal: any) => ({
+                type: goal.type,
+                name: goal.name,
+                start: Number(goal.start),
+                target: Number(goal.target),
+                current:
+                  goal.current !== undefined
+                    ? Number(goal.current)
+                    : Number(goal.start),
+              }))
+            : [],
+      }));
+    }
+
+    return payload;
+  },
   // Chuyển dữ liệu từ API (JSON) -> Form Values (AntD)
   toFormValues: (plan: PlanResponse) => {
     return {
       title: plan.title,
       description: plan.description,
-      // Chuyển string từ DB sang Dayjs để DatePicker hiểu
+      startDate: plan.startDate ? dayjs(plan.startDate) : null,
       endDate: plan.endDate ? dayjs(plan.endDate) : null,
+      // TODO: Xử lý phases khi edit nếu cần
     };
   },
 };
 
-// --- 2. REUSABLE FORM COMPONENT ---
-// Tách ra để dùng chung cho cả Create và Edit
-const PlanFormFields = () => (
-  <>
-    <Form.Item
-      label="Plan Title"
-      name="title" // Đặt tên khớp với DTO backend luôn cho đỡ nhầm
-      rules={[{ required: true, message: "Please input the plan title!" }]}
-    >
-      <Input placeholder="Enter plan title" />
-    </Form.Item>
-    <Form.Item label="Description" name="description">
-      <Input.TextArea placeholder="Enter description" rows={4} />
-    </Form.Item>
-    <Form.Item label="End Date" name="endDate">
-      <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
-    </Form.Item>
-    <div style={{ marginTop: 20 }}>
-      <h4>Tasks List</h4>
-      <Form.List name="tasks">
-        {(fields, { add, remove }) => (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {fields.map(({ key, name, ...restField }) => (
-              <Card
-                key={key}
-                size="small"
-                title={`Task ${name + 1}`}
-                extra={
-                  <Button
-                    danger
-                    type="text"
-                    icon={<DeleteOutlined />}
-                    onClick={() => remove(name)}
-                  />
-                }
-              >
-                <Form.Item
-                  {...restField}
-                  name={[name, "name"]} // Khớp với formValues ở trên
-                  rules={[{ required: true, message: "Missing task name" }]}
-                  style={{ marginBottom: 8 }}
-                >
-                  <Input placeholder="Task Name" />
-                </Form.Item>
-
-                <Form.Item
-                  {...restField}
-                  name={[name, "description"]}
-                  style={{ marginBottom: 8 }}
-                >
-                  <Input.TextArea placeholder="Task Description" />
-                </Form.Item>
-
-                {/* DatePicker này sẽ nhận giá trị ngày cụ thể đã tính toán */}
-                <Form.Item
-                  {...restField}
-                  name={[name, "dueDate"]}
-                  label="Due Date"
-                  style={{ marginBottom: 0 }}
-                >
-                  <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
-                </Form.Item>
-              </Card>
-            ))}
-
-            <Button
-              type="dashed"
-              style={{
-                margin: 2
-              }}
-              onClick={() => add()}
-              block
-              icon={<PlusOutlined />}
-            >
-              Add Task manually
-            </Button>
-          </div>
-        )}
-      </Form.List>
-    </div>
-  </>
-);
-
 export default function PlanPage() {
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage(); // Dùng message của AntD
+  const [current, setCurrent] = useState(0);
+
+  const stepChange = (value: number) => {
+    setCurrent(value);
+  };
 
   // Gom state modal lại cho gọn
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     mode: "create" | "edit";
-    editingId?: string; // Lưu ID đang sửa
+    editingId?: number; // Lưu ID đang sửa
   }>({ isOpen: false, mode: "create" });
 
   const [form] = Form.useForm();
@@ -143,39 +92,6 @@ export default function PlanPage() {
     queryFn: planService.getAllPlans,
   });
 
-  const mutation = useMutation({
-    mutationFn: (prompt: string) => planService.suggestPlans(prompt),
-    onSuccess: (aiData) => {
-      messageApi.success("Plans suggested successfully!");
-      console.log("Suggested Plans:", aiData);
-      // 1. Mở Modal ở chế độ Create
-      setModalState({ isOpen: true, mode: "create" });
-
-      // 2. Tính toán ngày tháng cho các Task
-      const today = dayjs();
-
-      const formValues = {
-        title: aiData.title,
-        description: aiData.description,
-        endDate: today.add(30, "day"), // Giả sử plan 1 tháng
-
-        // Map danh sách task từ AI
-        tasks: aiData.tasks.map((t: any) => ({
-          name: t.name, // Backend AI trả về 'name'
-          description: t.description,
-
-          // --- LOGIC TÍNH NGÀY Ở ĐÂY ---
-          // Nếu AI có dayOffset -> Cộng vào hôm nay -> Ra DatePicker
-          dueDate: t.dayOffset !== null ? today.add(t.dayOffset, "day") : null,
-        })),
-      };
-
-      // 3. Đổ dữ liệu vào Form
-      form.setFieldsValue(formValues);
-    },
-    onError: () => messageApi.error("Failed to suggest plans."),
-  });
-
   // --- MUTATIONS ---
   const createMutation = useMutation({
     mutationFn: planService.createPlan,
@@ -184,11 +100,11 @@ export default function PlanPage() {
       handleCloseModal();
       queryClient.invalidateQueries({ queryKey: ["plans"] });
     },
-    onError: () => messageApi.error("Failed to create plan."),
+    onError: (error: any) => messageApi.error("Failed to create plan.", error),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+    mutationFn: ({ id, payload }: { id: number; payload: any }) =>
       planService.updatePlan(id, payload),
     onSuccess: () => {
       messageApi.success("Plan updated successfully!");
@@ -199,7 +115,7 @@ export default function PlanPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => planService.deletePlan(id),
+    mutationFn: (id: number) => planService.deletePlan(id),
     onSuccess: () => {
       messageApi.success("Plan deleted!");
       queryClient.invalidateQueries({ queryKey: ["plans"] });
@@ -229,14 +145,6 @@ export default function PlanPage() {
     // Sử dụng Mapper để chuẩn bị dữ liệu gửi đi
     const payload = planMappers.toApiPayload(values);
 
-    if (values.tasks) {
-      payload.tasks = values.tasks.map((t: any) => ({
-        name: t.name,
-        description: t.description,
-        dayOffset: t.dueDate ? dayjs(t.dueDate).diff(dayjs(), "day") : null,
-      }));
-    }
-
     if (modalState.mode === "create") {
       createMutation.mutate(payload);
     } else if (modalState.mode === "edit" && modalState.editingId) {
@@ -258,11 +166,8 @@ export default function PlanPage() {
         <Input.Search
           placeholder="Suggest plans (e.g., trip to Japan)"
           enterButton="Suggest"
-          loading={mutation.isPending}
           onSearch={(value) => {
-            if (value.trim()) {
-              mutation.mutate(value.trim());
-            }
+            confirm(value);
           }}
           style={{ width: 400, marginRight: 16 }}
         />
@@ -318,15 +223,15 @@ export default function PlanPage() {
         </Flex>
       )}
 
-      {/* Dùng 1 Modal duy nhất cho cả Create và Edit */}
       <Modal
         title={modalState.mode === "create" ? "Create New Plan" : "Edit Plan"}
         open={modalState.isOpen}
         onCancel={handleCloseModal}
+        centered={true}
         footer={null}
         width={"50vw"}
       >
-        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        {/* <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <PlanFormFields />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
             <Button onClick={handleCloseModal}>Cancel</Button>
@@ -338,7 +243,36 @@ export default function PlanPage() {
               {modalState.mode === "create" ? "Create" : "Save Changes"}
             </Button>
           </div>
-        </Form>
+        </Form> */}
+        <Steps
+          current={current}
+          onChange={stepChange}
+          items={[
+            {
+              title: "Step 1",
+              description: "Basic Info",
+            },
+            {
+              title: "Step 2",
+              description: "Phases Info (For Multi-Phase Plans)",
+              disabled: !form.getFieldValue("isMultiPhase"),
+            },
+            {
+              title: "Step 3",
+              description: "Confirm",
+            },
+          ]}
+        />
+        <CreatePlan
+          step={current}
+          stepChange={(stepValue) => {
+            if (stepValue === 3) {
+              const values = form.getFieldsValue(true);
+              createMutation.mutate(planMappers.toApiPayload(values));
+            } else setCurrent(stepValue);
+          }}
+          form={form}
+        />
       </Modal>
     </div>
   );

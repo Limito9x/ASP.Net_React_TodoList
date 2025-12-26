@@ -15,7 +15,7 @@ import {
 } from "antd";
 import FileList from "../../components/FileList";
 import FileUploader from "../../components/FileUploader";
-import { taskService, type TaskResponse } from "../../services/taskService";
+import { phaseService } from "../../services/phaseService";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   EditOutlined,
@@ -24,39 +24,46 @@ import {
   CheckCircleOutlined,
   PaperClipOutlined
 } from "@ant-design/icons";
-import { useState } from "react";
+import { lazy, useState } from "react";
 import dayjs from "dayjs";
+import type { Phase } from "../../types/phase";
+import { planService } from "../../services/planService";
 
 // --- 1. MAPPERS (Chuyển đổi dữ liệu) ---
 const taskMappers = {
   // Chuyển dữ liệu từ Form (AntD) -> API Payload (JSON)
-  toApiPayload: (values: any, planId: string) => {
-    return {
-      name: values.taskName,
+  toApiPayload: (values: any, planId?: number) => {
+    const payload: any = {
+      title: values.title,
       description: values.description,
-      dueDate: values.dueDate ? values.dueDate.toISOString() : null,
+      startDate: values.startDate
+        ? values.startDate.toISOString()
+        :null,
+      endDate: values.endDate ? values.endDate.toISOString() : null,
       planId: planId,
     };
-  },
-
-  toApiUpdatePayload: (values: any) => {
-    const payload: any = {};
-    if (values.taskName !== undefined) payload.name = values.taskName;
-    if (values.description !== undefined)
-      payload.description = values.description;
-    if (values.dueDate !== undefined)
-      payload.dueDate = values.dueDate ? values.dueDate.toISOString() : null;
-    if (values.status !== undefined) payload.status = values.status;
+    if (values.goals) {
+      payload.goals = [
+        {
+          name: values.goals.name,
+          type: values.goals.type,
+          target: Number(values.goals.target),
+          current: Number(values.goals.current),
+          start: Number(values.goals.start),
+        },
+      ];
+    }
     return payload;
   },
 
   // Chuyển dữ liệu từ API (JSON) -> Form Values (AntD)
-  toFormValues: (task: TaskResponse) => {
+  toFormValues: (phase: Phase) => {
+    console.log("Mapping phase to form values:", phase);
     return {
-      taskName: task.name,
-      description: task.description,
-      dueDate: task.dueDate ? dayjs(task.dueDate) : null,
-      status: task.status,
+      title: phase.title,
+      description: phase.description,
+      startDate: phase.startDate ? dayjs(phase.startDate) : null,
+      endDate: phase.endDate ? dayjs(phase.endDate) : null,
     };
   },
 };
@@ -65,16 +72,19 @@ const taskMappers = {
 const TaskFormFields = () => (
   <>
     <Form.Item
-      label="Task Name"
-      name="taskName"
-      rules={[{ required: true, message: "Please input the task name!" }]}
+      label="Phase Title"
+      name="title"
+      rules={[{ required: true, message: "Please input the phase name!" }]}
     >
-      <Input placeholder="Enter task name" />
+      <Input placeholder="Enter phase title" />
     </Form.Item>
     <Form.Item label="Description" name="description">
       <Input.TextArea placeholder="Enter description" rows={4} />
     </Form.Item>
-    <Form.Item label="Due Date" name="dueDate">
+    <Form.Item label="Start Date" name="startDate">
+      <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
+    </Form.Item>
+    <Form.Item label="End Date" name="endDate">
       <DatePicker style={{ width: "100%" }} format="DD/MM/YYYY" />
     </Form.Item>
   </>
@@ -90,21 +100,6 @@ const updateFields = () => (
   </Form.Item>
 );
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "Todo":
-      return "blue";
-    case "InProgress":
-      return "orange";
-    case "Completed":
-      return "green";
-    case "Overdue":
-      return "red";
-    default:
-      return "gray";
-  }
-};
-
 export default function TaskPage({ planId }: { planId?: string }) {
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
@@ -113,26 +108,28 @@ export default function TaskPage({ planId }: { planId?: string }) {
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     mode: "create" | "edit";
-    editingId?: string;
+    editingId?: number;
   }>({ isOpen: false, mode: "create" });
 
   const [attachmentModal, setAttachmentModal] = useState<{
     isOpen: boolean;
-    taskId?: string;
-    taskName?: string;
+    phaseId?: number;
+    phaseTitle?: string;
   }>({ isOpen: false });
 
   const [form] = Form.useForm();
 
   // --- QUERY ---
-  const { data: tasks, isLoading } = useQuery({
-    queryKey: ["tasks", planId],
-    queryFn: () => taskService.getTasksByPlanId(planId!),
+  const { data: plan, isLoading } = useQuery({
+    queryKey: ["plan", planId],
+    queryFn: () => planService.getPlanById(planId!),
   });
+
+  console.log("Plan detail data:", plan);
 
   // --- MUTATIONS ---
   const createMutation = useMutation({
-    mutationFn: taskService.createTask,
+    mutationFn: phaseService.createPhase,
     onSuccess: () => {
       messageApi.success("Task created successfully!");
       handleCloseModal();
@@ -142,8 +139,8 @@ export default function TaskPage({ planId }: { planId?: string }) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
-      taskService.updateTask(id, payload),
+    mutationFn: ({ id, payload }: { id: number; payload: any }) =>
+      phaseService.updatePhase(id, payload),
     onSuccess: () => {
       messageApi.success("Task updated successfully!");
       handleCloseModal();
@@ -153,7 +150,7 @@ export default function TaskPage({ planId }: { planId?: string }) {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => taskService.deleteTask(id),
+    mutationFn: (id: number) => phaseService.deletePhase(id),
     onSuccess: () => {
       messageApi.success("Task deleted!");
       queryClient.invalidateQueries({ queryKey: ["tasks", planId] });
@@ -166,7 +163,7 @@ export default function TaskPage({ planId }: { planId?: string }) {
     setModalState({ isOpen: true, mode: "create" });
   };
 
-  const handleOpenEdit = (task: TaskResponse) => {
+  const handleOpenEdit = (task: Phase) => {
     const formValues = taskMappers.toFormValues(task);
     form.setFieldsValue(formValues);
     setModalState({ isOpen: true, mode: "edit", editingId: task.id });
@@ -178,10 +175,7 @@ export default function TaskPage({ planId }: { planId?: string }) {
   };
 
   const handleSubmit = (values: any) => {
-    const payload =
-      modalState.mode === "create"
-        ? taskMappers.toApiPayload(values, planId!)
-        : taskMappers.toApiUpdatePayload(values);
+    const payload = taskMappers.toApiPayload(values, Number(planId));
 
     if (modalState.mode === "create") {
       createMutation.mutate(payload);
@@ -201,13 +195,13 @@ export default function TaskPage({ planId }: { planId?: string }) {
           marginBottom: 20,
         }}
       >
-        <h1>My Tasks</h1>
+        <h1>My Phases</h1>
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={handleOpenCreate}
         >
-          Create New Task
+          Create New Phase
         </Button>
       </div>
 
@@ -215,23 +209,22 @@ export default function TaskPage({ planId }: { planId?: string }) {
         <div style={{ textAlign: "center", padding: "50px 0" }}>
           <Spin size="large" />
         </div>
-      ) : tasks && tasks.length > 0 ? (
+      ) : plan?.phases && plan.phases.length > 0 ? (
         <Flex vertical gap={16}>
-          {tasks.map((task) => (
+          {plan.phases.map((phase) => (
             <Card
-              key={task.id}
+              key={phase.id}
               hoverable
               title={
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <CheckCircleOutlined style={{ color: "#52c41a" }} />
-                  <strong>{task.name}</strong>
-                  <Tag color={getStatusColor(task.status)}>{task.status}</Tag>
+                  <strong>{phase.title}</strong>
                 </div>
               }
               extra={
                 <div style={{ display: "flex", gap: 8 }}>
-                  <Button type="link" href={`/plans/${planId}/tasks/${task.id}`}>
-                    Go to Task
+                  <Button type="link" href={`/plans/${planId}/phases/${phase.id}`}>
+                    Go to Phase
                   </Button>
                   <Tooltip title="Attachments">
                     <Button
@@ -239,8 +232,8 @@ export default function TaskPage({ planId }: { planId?: string }) {
                       onClick={() => {
                         setAttachmentModal({
                           isOpen: true,
-                          taskId: task.id,
-                          taskName: task.name,
+                          phaseId: phase.id,
+                          phaseTitle: phase.title,
                         });
                       }}
                     />
@@ -248,14 +241,14 @@ export default function TaskPage({ planId }: { planId?: string }) {
                   <Tooltip title="Edit Task">
                     <Button
                       icon={<EditOutlined />}
-                      onClick={() => handleOpenEdit(task)}
+                      onClick={() => handleOpenEdit(phase)}
                     />
                   </Tooltip>
                   <Tooltip title="Delete Task">
                     <Popconfirm
-                      title="Delete the task"
-                      description="Are you sure to delete this task?"
-                      onConfirm={() => deleteMutation.mutate(task.id)}
+                      title="Delete the phase"
+                      description="Are you sure to delete this phase?"
+                      onConfirm={() => deleteMutation.mutate(phase.id)}
                       okText="Yes"
                       cancelText="No"
                     >
@@ -266,11 +259,11 @@ export default function TaskPage({ planId }: { planId?: string }) {
               }
             >
               <p style={{ marginBottom: 8, color: "#666" }}>
-                {task.description}
+                {phase.description}
               </p>
-              {task.dueDate && (
+              {phase.endDate && (
                 <Tag color="blue">
-                  Due: {dayjs(task.dueDate).format("DD/MM/YYYY")}
+                  Due: {dayjs(phase.endDate).format("DD/MM/YYYY")}
                 </Tag>
               )}
             </Card>
@@ -306,22 +299,22 @@ export default function TaskPage({ planId }: { planId?: string }) {
       </Modal>
 
       <Modal
-        title={`Attachments for: ${attachmentModal.taskName}`}
+        title={`Attachments for: ${attachmentModal.phaseTitle}`}
         open={attachmentModal.isOpen}
         onCancel={() =>
-          setAttachmentModal({ isOpen: false, taskId: undefined })
+          setAttachmentModal({ isOpen: false, phaseId: undefined })
         }
         footer={null}
         width={800}
       >
-        <FileUploader
+        {/* <FileUploader
           planId={planId!}
-          taskId={attachmentModal.taskId}
+          phaseId={attachmentModal.phaseId!}
           onSuccess={() => {}}
         />
-        {attachmentModal.taskId && (
-          <FileList planId={planId!} taskId={attachmentModal.taskId} />
-        )}
+        {attachmentModal.phaseId && (
+          <FileList planId={planId!} phaseId={attachmentModal.phaseId!} />
+        )} */}
       </Modal>
     </div>
   );

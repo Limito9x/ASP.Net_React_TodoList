@@ -37,7 +37,9 @@ namespace MyFirstProject.Server.Services.Phase
 
         public async Task<ResponsePhaseDto> CreatePhaseAsync(RequestPhaseDto phaseDto)
         {
+            var userId = _currentUserService.UserId;
             var phase = _mapper.Map<Models.Phase>(phaseDto);
+            phase.UserId = userId;
             _context.Phases.Add(phase);
             await  _context.SaveChangesAsync();
             return _mapper.Map<ResponsePhaseDto>(phase);

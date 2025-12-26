@@ -1,21 +1,13 @@
 import api from "./axiosConfig";
+import type { User } from "../types/user";
 
-export interface LoginPayload {
-  userName: string;
-  password: string;
-}
+type LoginPayload = Pick<User, 'userName'> & { password: string };
 
-export interface LoginResponse {
+type LoginResponse = Pick<User, 'id' | 'userName' | 'fullName' | 'email'> & {
   token: string;
-  fullName: string;
-}
+};
 
-export interface RegisterPayload {
-  userName: string;
-  fullName: string;
-  email: string;
-  password: string;
-}
+type RegisterPayload = Pick<User, 'userName' | 'fullName' | 'email'> & { password: string };
 
 export const authService = {
   login: async (payload: LoginPayload) => {

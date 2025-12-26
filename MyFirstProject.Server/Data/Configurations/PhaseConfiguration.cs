@@ -19,7 +19,8 @@ namespace MyFirstProject.Server.Data.Configurations
                 .IsUnique()
                 .HasFilter("\"DeletedAt\" IS NULL");
             builder.Property(p => p.Goals)
-                .HasColumnType("jsonb");
+                .HasColumnType("jsonb")
+                .IsRequired(false);
             builder.HasIndex(p => p.Goals)
                 .HasMethod("gin");
         }

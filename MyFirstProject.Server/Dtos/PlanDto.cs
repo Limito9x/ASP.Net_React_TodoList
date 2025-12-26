@@ -5,7 +5,7 @@
         string Title,
         string? Description,
         DateTime? StartDate,
-        DateTime? EndAt,
+        DateTime? EndDate,
         List<RequestPhaseDto>? Phases
     );
 
@@ -16,7 +16,7 @@
         string? Description,
         decimal? Progress,
         DateTime? StartDate,
-        DateTime? EndAt,
+        DateTime? EndDate,
         DateTime CreatedAt,
         DateTime? UpdatedAt,
         List <SimpleResponsePhaseDto>? Phases

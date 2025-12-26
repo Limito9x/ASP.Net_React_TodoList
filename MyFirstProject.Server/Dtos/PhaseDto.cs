@@ -9,6 +9,7 @@ namespace MyFirstProject.Server.Dtos
         DateTime? StartDate,
         DateTime? EndDate,
         int PlanId,
+        int UserId,
         List<GoalConfig>? Goals,
         List<RequestRoutineDto>? RequestRoutineDtos,
         List<RequestSingleTaskDto>? RequestSingleTaskDtos

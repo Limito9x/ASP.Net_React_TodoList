@@ -39,20 +39,33 @@ namespace MyFirstProject.Server.Services.Plan
         public async Task<ResponsePlanDto> CreatePlanAsync(RequestPlanDto PlanDto)
         {
             var userId = _currentUserService.UserId;
-            // Mapper DTO sang Model
+
+            // Map DTO to Model
             var Plan = _mapper.Map<Models.Plan>(PlanDto);
-            // Thêm vào CSDL
+            Plan.UserId = userId;
+
+            // Gán UserId cho tất cả Phase con nếu có
+            if (Plan.Phases != null && Plan.Phases.Any())
+            {
+                foreach (var phase in Plan.Phases)
+                {
+                    phase.UserId = userId;
+                }
+            }
+
+            // Add to DB
             await _context.Plans.AddAsync(Plan);
-            // Lưu thay đổi
+            // Save changes
             await _context.SaveChangesAsync();
-            // Trả về DTO
+            // Return DTO
             return _mapper.Map<ResponsePlanDto>(Plan);
         }
 
         public async Task<ResponsePlanDto?> GetPlanByIdAsync(int PlanId)
         {
             var userId = _currentUserService.UserId;
-            var Plan = await _context.Plans.FindAsync(PlanId);
+            var Plan = await _context.Plans.Include(p => p.Phases)
+                .FirstOrDefaultAsync(p => p.Id == PlanId);
             if (Plan == null) return null;
             _currentUserService.CheckAuthorized(Plan.UserId, nameof(Models.Plan));
             return _mapper.Map<ResponsePlanDto>(Plan);
@@ -74,6 +87,7 @@ namespace MyFirstProject.Server.Services.Plan
             var userId = _currentUserService.UserId;
             var plan = await _context.Plans.FindAsync(PlanId);
             if (plan == null) return null;
+            _mapper.Map(PlanDto, plan);
             await _context.SaveChangesAsync();
             return _mapper.Map<ResponsePlanDto>(plan);
         }

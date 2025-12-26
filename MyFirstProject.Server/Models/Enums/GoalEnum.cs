@@ -7,10 +7,4 @@
         Boolean,
         TaskOnly
     }
-
-    public enum NumericMode
-    {
-        Increase,
-        Decrease
-    }
 }

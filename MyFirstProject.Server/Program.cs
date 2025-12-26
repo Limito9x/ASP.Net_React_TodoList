@@ -1,28 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using MyFirstProject.Server.Data;
-using MyFirstProject.Server.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Text.Json.Serialization;
-using Microsoft.SemanticKernel;
-using Mapster;
+﻿using Mapster;
 using MapsterMapper;
-using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.SemanticKernel;
+using MyFirstProject.Server.Data;
 using MyFirstProject.Server.Data.Interceptors;
+using MyFirstProject.Server.Models;
+using MyFirstProject.Server.Services.AI;
+using MyFirstProject.Server.Services.AssetLink;
+using MyFirstProject.Server.Services.AssetService;
 using MyFirstProject.Server.Services.Auth;
 using MyFirstProject.Server.Services.Cloud;
-using MyFirstProject.Server.Services.Plan;
-using MyFirstProject.Server.Services.SingleTask;
-using MyFirstProject.Server.Services.AI;
-using MyFirstProject.Server.Services.AssetService;
-using MyFirstProject.Server.Services.AssetLink;
-using MyFirstProject.Server.Services.UserService;
-using MyFirstProject.Server.Services.Routine;
-using MyFirstProject.Server.Services.TaskLog;
 using MyFirstProject.Server.Services.Form;
 using MyFirstProject.Server.Services.Phase;
+using MyFirstProject.Server.Services.Plan;
+using MyFirstProject.Server.Services.Routine;
+using MyFirstProject.Server.Services.SingleTask;
+using MyFirstProject.Server.Services.TaskLog;
+using MyFirstProject.Server.Services.UserService;
+using Npgsql;
+using System.Reflection;
+using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -97,11 +98,16 @@ builder.Services.AddScoped<IAuthService, AuthService>()
 // Đăng ký Interceptor để xóa file trên Cloudinary khi xóa bản ghi Asset
 builder.Services.AddScoped<CloudinaryDeleteInterceptor>();
 
+// Enable dynamic JSON serialization cho Npgsql
+var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+dataSourceBuilder.EnableDynamicJson();
+var dataSource = dataSourceBuilder.Build();
+
 // Cấu hình DbContext với PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
 {
     var interceptor = serviceProvider.GetRequiredService<CloudinaryDeleteInterceptor>();
-    options.UseNpgsql(connectionString)
+    options.UseNpgsql(dataSource)
               .AddInterceptors(interceptor);
 }
 );
