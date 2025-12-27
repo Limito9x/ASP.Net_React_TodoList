@@ -21,11 +21,10 @@ namespace MyFirstProject.Server.Data.Configurations
                 .HasColumnType("jsonb");
             builder.HasIndex(r => r.Rule)
                 .HasMethod("gin");
+            builder.Property(r => r.LinkedFormIds)
+                .HasColumnType("jsonb");
             builder.Property(r => r.LinkedGoalIds)
-                .HasConversion(
-                    v => System.Text.Json.JsonSerializer.Serialize(v, (System.Text.Json.JsonSerializerOptions?)null),
-                    v => System.Text.Json.JsonSerializer.Deserialize<List<int>>(v, (System.Text.Json.JsonSerializerOptions?)null) ?? new List<int>()
-                );
+                .HasColumnType("jsonb");
         }
     }
 }

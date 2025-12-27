@@ -21,7 +21,12 @@ namespace MyFirstProject.Server.Data.Configurations
             builder.Property(t => t.CompletedAt);
             builder.Property(t => t.Status)
                 .HasConversion<string>();
-            
+            builder.Property(t=>t.LinkedFormIds)
+                .HasColumnType("jsonb");
+            builder.Property(t => t.LinkedGoalIds)
+                .HasColumnType("jsonb");
+            builder.Property(t => t.Data)
+                .HasColumnType("jsonb");
         }
     }
 }

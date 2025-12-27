@@ -64,7 +64,8 @@ namespace MyFirstProject.Server.Services.Plan
         public async Task<ResponsePlanDto?> GetPlanByIdAsync(int PlanId)
         {
             var userId = _currentUserService.UserId;
-            var Plan = await _context.Plans.Include(p => p.Phases)
+            var Plan = await _context.Plans
+                .Include(p => p.Phases)
                 .FirstOrDefaultAsync(p => p.Id == PlanId);
             if (Plan == null) return null;
             _currentUserService.CheckAuthorized(Plan.UserId, nameof(Models.Plan));
@@ -75,6 +76,7 @@ namespace MyFirstProject.Server.Services.Plan
         {
             var userId = _currentUserService.UserId;
             var plans = await _context.Plans
+                .Include(p => p.Phases)
                 .Where(p => p.UserId == userId)
                 .OrderByDescending(p => p.StartDate)
                 .ToListAsync();

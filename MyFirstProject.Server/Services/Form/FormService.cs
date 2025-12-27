@@ -11,6 +11,7 @@ namespace MyFirstProject.Server.Services.Form
         Task<List<ResponseFormDto>> GetAllFormsAsync(RequestQueryFormDto queryDto);
         Task<ResponseFormDto> CreateFormAsync(RequestFormDto formDto);
         Task<bool> DeleteFormAsync(int formId);
+        Task<bool> ValidateFormsAsync(List<int> formIds, int userId);
     }
     public class FormService : IFormService
     {
@@ -59,6 +60,21 @@ namespace MyFirstProject.Server.Services.Form
             _context.Forms.Remove(form);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> ValidateFormsAsync(List<int> formIds, int userId)
+        {
+            // Null hoặc empty list được coi là valid (không có form nào cần validate)
+            if (formIds == null || formIds.Count == 0)
+            {
+                return true;
+            }
+            
+            var count = await _context.Forms
+                .AsNoTracking()
+                .Where(f => formIds.Contains(f.Id) && f.UserId == userId)
+                .CountAsync();
+            return count == formIds.Count;
         }
     }
 }

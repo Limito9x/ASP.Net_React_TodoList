@@ -5,6 +5,7 @@ using MyFirstProject.Server.Models.Enums;
 using MyFirstProject.Server.Services.UserService;
 using MyFirstProject.Server.Dtos;
 using MapsterMapper;
+using MyFirstProject.Server.Services.Form;
 
 namespace MyFirstProject.Server.Services.SingleTask
 {
@@ -21,18 +22,39 @@ namespace MyFirstProject.Server.Services.SingleTask
         private readonly ApplicationDbContext _context;
         private readonly IAssetLinkService _assetLinkService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IFormService _formService;
         private readonly IMapper _mapper;
 
-        public SingleTaskService(ApplicationDbContext context, IAssetLinkService assetLinkService, ICurrentUserService currentUserService, IMapper mapper)
+        public SingleTaskService(
+            ApplicationDbContext context,
+            IAssetLinkService assetLinkService,
+            ICurrentUserService currentUserService,
+            IMapper mapper,
+            IFormService formService
+            )
         {
             _context = context;
             _assetLinkService = assetLinkService;
             _currentUserService = currentUserService;
             _mapper = mapper;
+            _formService = formService;
         }
         public async Task<ResponseSingleTaskDto> CreateSingleTaskAsync(RequestSingleTaskDto taskItemDto)
         {
+            var userId = _currentUserService.UserId;
+            
+            // Chỉ validate khi LinkedFormIds có giá trị và không rỗng
+            if (taskItemDto.LinkedFormIds?.Any() == true)
+            {
+                var isValidForm = await _formService.ValidateFormsAsync(taskItemDto.LinkedFormIds, userId);
+                if (!isValidForm)
+                {
+                    throw new UnauthorizedAccessException("One or more forms are invalid or do not belong to the user.");
+                }
+            }
+            
             var singleTask = _mapper.Map<Models.SingleTask>(taskItemDto);
+            singleTask.UserId = userId;
             await _context.SingleTasks.AddAsync(singleTask);
             await _context.SaveChangesAsync();
             return _mapper.Map<ResponseSingleTaskDto>(singleTask);

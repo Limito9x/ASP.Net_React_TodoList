@@ -32,7 +32,5 @@ namespace MyFirstProject.Server.Models
         public List<MetadataRow> Rows { get; set; } = new();
         public int UserId { get; set; } // Template do 1 người dùng tạo ra
         public User? User { get; set; }
-        public List<SingleTask>? SingleTasks { get; set; }
-        public List<Routine>? Routines { get; set; }
     }
 }

@@ -5,6 +5,7 @@ import {
   CheckSquareOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 interface BaseProps {
   config?: any;
@@ -13,10 +14,10 @@ interface BaseProps {
 }
 
 export const fieldTypeOptions = {
-  text: { label: "Chữ", value: "text", defaultValue: "" },
-  number: { label: "Số", value: "number", defaultValue: 0 },
-  boolean: { label: "Boolean", value: "boolean", defaultValue: false },
-  date: { label: "Ngày tháng", value: "date", defaultValue: null },
+  Text: { label: "Chữ", value: "Text", defaultValue: "" },
+  Number: { label: "Số", value: "Number", defaultValue: 0 },
+  Boolean: { label: "Boolean", value: "Boolean", defaultValue: false },
+  Date: { label: "Ngày tháng", value: "Date", defaultValue: null },
 };
 
 interface FieldDefinition {
@@ -27,13 +28,13 @@ interface FieldDefinition {
 }
 
 export const FIELD_DEFINITIONS: Record<FieldType, FieldDefinition> = {
-  text: {
+  Text: {
     label: "Văn bản",
     icon: <FileTextOutlined />,
     defaultValue: "",
     component: (props) => <Input {...props} placeholder="Nhập văn bản" />,
   },
-  number: {
+  Number: {
     label: "Số",
     icon: <NumberOutlined />,
     defaultValue: 0,
@@ -41,7 +42,7 @@ export const FIELD_DEFINITIONS: Record<FieldType, FieldDefinition> = {
       <InputNumber style={{ width: "100%" }} {...props} placeholder="Nhập số" />
     ),
   },
-  boolean: {
+  Boolean: {
     label: "Boolean",
     icon: <CheckSquareOutlined />,
     defaultValue: false,
@@ -53,7 +54,7 @@ export const FIELD_DEFINITIONS: Record<FieldType, FieldDefinition> = {
       />
     ),
   },
-  date: {
+  Date: {
     label: "Ngày tháng",
     icon: <CalendarOutlined />,
     defaultValue: null,
@@ -63,6 +64,8 @@ export const FIELD_DEFINITIONS: Record<FieldType, FieldDefinition> = {
         {...props}
         format={"DD/MM/YYYY"}
         placeholder="DD/MM/YYYY"
+        value={props.value ? dayjs(props.value) : null}
+        onChange={(date) => props.onChange?.(date ? date.toISOString() : null)}
       />
     ),
   },

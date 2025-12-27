@@ -2,6 +2,7 @@ import { type RouteObject, useRoutes } from "react-router-dom";
 import RootLayout from "../layout/RootLayout";
 import Home from "../pages/Home";
 import PlanPage from "../pages/Plan";
+import PhasePage from "../pages/Phase";
 import TaskIndexPage from "../pages/PlanDetail";
 import Task from "../pages/Task";
 import TemplatePage from "../pages/Template";
@@ -31,7 +32,11 @@ export const AppRoutes = () => {
                     element: <TaskIndexPage />
                 },
                 {
-                    path: "plans/:planId/tasks/:taskId",
+                    path: "plans/:planId/phases/:phaseId",
+                    element: <PhasePage />
+                },
+                {
+                    path: "tasks/:taskId",
                     element: <Task />
                 }
             ]

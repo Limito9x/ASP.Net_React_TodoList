@@ -1,4 +1,15 @@
-import { Button, Col, DatePicker, Form, Input, Row, Select, Switch, Tooltip } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  Row,
+  Select,
+  Switch,
+  Tooltip,
+} from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 export default function CreatePlan({
@@ -19,12 +30,12 @@ export default function CreatePlan({
   };
 
   const handleBackStepChange = () => {
-        if (step === 2 && !form.getFieldValue("isMultiPhase")) {
-          stepChange(0);
-          return; 
-        }
+    if (step === 2 && !form.getFieldValue("isMultiPhase")) {
+      stepChange(0);
+      return;
+    }
     stepChange(step - 1);
-  }
+  };
 
   return (
     <>
@@ -203,15 +214,19 @@ export default function CreatePlan({
                                 name: goalName,
                                 ...goalRestField
                               }) => (
-                                <div
-                                  key={goalKey}
-                                  style={{
-                                    border: "1px dashed #d9d9d9",
-                                    padding: "12px",
-                                    marginBottom: "12px",
-                                    borderRadius: "4px",
-                                    position: "relative",
-                                  }}
+                                <Card
+                                  title={`Mục tiêu ${goalName + 1}`}
+                                  extra={
+                                    <Tooltip title="Xóa mục tiêu">
+                                      <Button
+                                        type="text"
+                                        danger
+                                        onClick={() => removeGoal(goalName)}
+                                      >
+                                        Xóa
+                                      </Button>
+                                    </Tooltip>
+                                  }
                                 >
                                   <Row gutter={16}>
                                     <Col span={6}>
@@ -251,19 +266,7 @@ export default function CreatePlan({
                                       </Form.Item>
                                     </Col>
                                   </Row>
-                                  <Button
-                                    type="link"
-                                    danger
-                                    style={{
-                                      position: "absolute",
-                                      top: 8,
-                                      right: 8,
-                                    }}
-                                    onClick={() => removeGoal(goalName)}
-                                  >
-                                    Xóa mục tiêu
-                                  </Button>
-                                </div>
+                                </Card>
                               )
                             )}
                             <Form.Item>

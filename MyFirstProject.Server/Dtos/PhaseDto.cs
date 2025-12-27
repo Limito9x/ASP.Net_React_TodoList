@@ -24,10 +24,10 @@ namespace MyFirstProject.Server.Dtos
         DateTime? EndDate,
         int PlanId,
         int Order,
-        List<GoalConfig> Goals,
+        List<GoalConfig>? Goals,
         decimal? Progress,
-        List<Routine>? Routines,
-        List<SingleTask>? SingleTasks
+        List<SimpleResponseRoutineDto>? Routines,
+        List<SimpleResponseSingleTaskDto>? SingleTasks
     );
 
     public record SimpleResponsePhaseDto

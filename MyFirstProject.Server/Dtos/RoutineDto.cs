@@ -8,7 +8,7 @@ namespace MyFirstProject.Server.Dtos
         string? Description,
         TimeOnly ScheduledTime,
         RecurrenceRule Rule,
-        List<Form>? Forms,
+        List<string>? LinkedFormIds,
         List<int>? LinkedGoalIds,
         int? PhaseId
     );

@@ -8,8 +8,14 @@ namespace MyFirstProject.Server.Mappings
     {
         public void Register(TypeAdapterConfig config)
         {
+            // Map từ RequestPhaseDto -> Phase
             config.NewConfig<RequestPhaseDto, Phase>()
-                .Map(dest => dest.Goals, src => src.Goals);
+                .Map(dest => dest.Goals, src => src.Goals ?? new List<GoalConfig>());
+            
+            // Map từ Phase -> ResponsePhaseDto
+            config.NewConfig<Phase, ResponsePhaseDto>()
+                .Map(dest => dest.Routines, src => src.Routines)
+                .Map(dest => dest.SingleTasks, src => src.SingleTasks);
         }
     }
 }

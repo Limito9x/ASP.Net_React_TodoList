@@ -15,5 +15,5 @@ export type GoalConfig = {
 export interface Phase extends TimeLineEntity {
   title: string;
   description?: string;
-  goals?: GoalConfig[];
+  goals: GoalConfig[];
 }

@@ -17,7 +17,7 @@ export type PhasePayload = Omit<
 
 export type PhaseResponse = Phase & {
   routines: Routine[];
-  tasks: SingleTask[];
+  singleTasks: SingleTask[];
 };
 
 export const phaseService = {

@@ -11,8 +11,8 @@ namespace MyFirstProject.Server.Dtos
         DateTime? StartAt,
         DateTime? EndAt,
         SingleTaskType Type,
-        List<int>? LinkedGoalIds,
-        List<Form>? Forms,
+        List<string>? LinkedGoalIds,
+        List<int>? LinkedFormIds,
         int? PhaseId
     );
 
@@ -36,8 +36,23 @@ namespace MyFirstProject.Server.Dtos
         SingleTaskStatus Status,
         SingleTaskType Type,
         string? Note,
-        List<MetadataForm> Forms,
-        List<int> LinkedGoalIds,
+        List<MetadataForm> Data,
+        List<string> LinkedGoalIds,
+        List<int> LinkedFormIds,
         int? PhaseId
+    );
+
+    public record SimpleResponseSingleTaskDto
+    (
+        int Id,
+        string Name,
+        string? Description,
+        DateTime? DueDate,
+        DateTime? CompletedAt,
+        SingleTaskStatus Status,
+        SingleTaskType Type,
+        int? PhaseId,
+        List<string>? LinkedGoalIds,
+        List<int>? LinkedFormIds
     );
 }

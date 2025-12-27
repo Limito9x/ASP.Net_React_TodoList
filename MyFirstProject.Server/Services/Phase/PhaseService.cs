@@ -1,4 +1,5 @@
 ﻿using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using MyFirstProject.Server.Data;
 using MyFirstProject.Server.Dtos;
 using MyFirstProject.Server.Services.AssetLink;
@@ -30,7 +31,12 @@ namespace MyFirstProject.Server.Services.Phase
 
         public async Task<ResponsePhaseDto?> GetPhaseByIdAsync(int phaseId)
         {
-            var phase = await _context.Phases.FindAsync(phaseId);
+            var phase = await _context.Phases
+                .Include(ph => ph.SingleTasks)
+                .Include(ph => ph.Routines)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(ph => ph.Id == phaseId);
+            
             if(phase == null) return null;
             return _mapper.Map<ResponsePhaseDto>(phase);
         }

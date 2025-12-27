@@ -27,9 +27,9 @@
         public TimeOnly ScheduledTime { get; set; }
         public RecurrenceRule Rule { get; set; }
         public DateTime NextOccurence { get; set; }
-        public List<Form> Forms { get; set; } = new List<Form>();
+        public List<int>? LinkedFormIds { get; set; } = new();
         //public List<MetadataForm> Data { get; set; } = new List<MetadataForm>();
-        public List<int> LinkedGoalIds { get; set; } = new List<int>(); // Tham chiếu đến mục tiêu liên kết goal config của phase
+        public List<string>? LinkedGoalIds { get; set; } = new(); // Tham chiếu đến mục tiêu liên kết goal config của phase
         public int UserId { get; set; }
         public User? User { get; set; }
         public int? PhaseId { get; set; }

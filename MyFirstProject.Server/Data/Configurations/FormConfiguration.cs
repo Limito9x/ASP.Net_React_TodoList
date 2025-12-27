@@ -17,9 +17,6 @@ namespace MyFirstProject.Server.Data.Configurations
                 .HasColumnType("jsonb");
             builder.HasIndex(f  => f.Rows)
                 .HasMethod("gin");
-            builder.HasMany(f => f.Routines)
-                .WithMany(r => r.Forms)
-                .UsingEntity(j => j.ToTable("FormRoutines"));
         }
     }
 }

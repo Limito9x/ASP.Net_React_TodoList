@@ -24,36 +24,6 @@ namespace MyFirstProject.Server.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("FormRoutine", b =>
-                {
-                    b.Property<int>("FormsId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("RoutinesId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("FormsId", "RoutinesId");
-
-                    b.HasIndex("RoutinesId");
-
-                    b.ToTable("FormRoutines", (string)null);
-                });
-
-            modelBuilder.Entity("FormSingleTask", b =>
-                {
-                    b.Property<int>("FormsId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SingleTasksId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("FormsId", "SingleTasksId");
-
-                    b.HasIndex("SingleTasksId");
-
-                    b.ToTable("FormSingleTask");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
                 {
                     b.Property<int>("Id")
@@ -334,25 +304,6 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.ToTable("Forms", (string)null);
                 });
 
-            modelBuilder.Entity("MyFirstProject.Server.Models.MetadataForm", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int?>("SingleTaskId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SingleTaskId");
-
-                    b.ToTable("MetadataForm");
-                });
-
             modelBuilder.Entity("MyFirstProject.Server.Models.Phase", b =>
                 {
                     b.Property<int>("Id")
@@ -529,9 +480,11 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<string>("LinkedGoalIds")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.PrimitiveCollection<string>("LinkedFormIds")
+                        .HasColumnType("jsonb");
+
+                    b.PrimitiveCollection<string>("LinkedGoalIds")
+                        .HasColumnType("jsonb");
 
                     b.Property<DateTime>("NextOccurence")
                         .HasColumnType("timestamp with time zone");
@@ -590,6 +543,9 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<List<MetadataForm>>("Data")
+                        .HasColumnType("jsonb");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -603,9 +559,11 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.Property<DateTime?>("EndAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.PrimitiveCollection<List<int>>("LinkedGoalIds")
-                        .IsRequired()
-                        .HasColumnType("integer[]");
+                    b.PrimitiveCollection<string>("LinkedFormIds")
+                        .HasColumnType("jsonb");
+
+                    b.PrimitiveCollection<string>("LinkedGoalIds")
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -737,7 +695,6 @@ namespace MyFirstProject.Server.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<List<MetadataForm>>("Data")
-                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<DateTime?>("DeletedAt")
@@ -834,36 +791,6 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("FormRoutine", b =>
-                {
-                    b.HasOne("MyFirstProject.Server.Models.Form", null)
-                        .WithMany()
-                        .HasForeignKey("FormsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyFirstProject.Server.Models.Routine", null)
-                        .WithMany()
-                        .HasForeignKey("RoutinesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FormSingleTask", b =>
-                {
-                    b.HasOne("MyFirstProject.Server.Models.Form", null)
-                        .WithMany()
-                        .HasForeignKey("FormsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyFirstProject.Server.Models.SingleTask", null)
-                        .WithMany()
-                        .HasForeignKey("SingleTasksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -958,13 +885,6 @@ namespace MyFirstProject.Server.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("MyFirstProject.Server.Models.MetadataForm", b =>
-                {
-                    b.HasOne("MyFirstProject.Server.Models.SingleTask", null)
-                        .WithMany("Data")
-                        .HasForeignKey("SingleTaskId");
                 });
 
             modelBuilder.Entity("MyFirstProject.Server.Models.Phase", b =>
@@ -1098,11 +1018,6 @@ namespace MyFirstProject.Server.Data.Migrations
             modelBuilder.Entity("MyFirstProject.Server.Models.Plan", b =>
                 {
                     b.Navigation("Phases");
-                });
-
-            modelBuilder.Entity("MyFirstProject.Server.Models.SingleTask", b =>
-                {
-                    b.Navigation("Data");
                 });
 
             modelBuilder.Entity("MyFirstProject.Server.Models.Tag", b =>

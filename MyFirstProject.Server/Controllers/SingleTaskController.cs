@@ -22,11 +22,13 @@ namespace MyFirstProject.Server.Controllers
         {
             try
             {
+                Console.WriteLine("Creating task with DTO: "+ dto);
                 var created = await _singleTaskService.CreateSingleTaskAsync(dto);
                 return Ok(created);
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Error creating task: " + ex.Message);
                 return BadRequest(new { message = ex.Message });
             }
         }

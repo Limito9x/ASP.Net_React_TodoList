@@ -24,10 +24,11 @@ import {
   CheckCircleOutlined,
   PaperClipOutlined
 } from "@ant-design/icons";
-import { lazy, useState } from "react";
+import { useState } from "react";
 import dayjs from "dayjs";
 import type { Phase } from "../../types/phase";
 import { planService } from "../../services/planService";
+import { useNavigate } from "react-router-dom";
 
 // --- 1. MAPPERS (Chuyển đổi dữ liệu) ---
 const taskMappers = {
@@ -90,17 +91,7 @@ const TaskFormFields = () => (
   </>
 );
 
-const updateFields = () => (
-  <Form.Item label="Status" name="status">
-    <Select>
-      <Select.Option value="Todo">To Do</Select.Option>
-      <Select.Option value="InProgress">In Progress</Select.Option>
-      <Select.Option value="Completed">Done</Select.Option>
-    </Select>
-  </Form.Item>
-);
-
-export default function TaskPage({ planId }: { planId?: string }) {
+export default function PlanPhasePage({ planId }: { planId?: string }) {
   const queryClient = useQueryClient();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -184,6 +175,8 @@ export default function TaskPage({ planId }: { planId?: string }) {
     }
   };
 
+  const navigate = useNavigate();
+
   return (
     <div style={{ padding: 20 }}>
       {contextHolder}
@@ -195,7 +188,7 @@ export default function TaskPage({ planId }: { planId?: string }) {
           marginBottom: 20,
         }}
       >
-        <h1>My Phases</h1>
+        <h1>{plan?.title}</h1>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -223,7 +216,7 @@ export default function TaskPage({ planId }: { planId?: string }) {
               }
               extra={
                 <div style={{ display: "flex", gap: 8 }}>
-                  <Button type="link" href={`/plans/${planId}/phases/${phase.id}`}>
+                  <Button type="link" onClick={() => navigate(`/plans/${planId}/phases/${phase.id}`)}>
                     Go to Phase
                   </Button>
                   <Tooltip title="Attachments">
@@ -284,7 +277,7 @@ export default function TaskPage({ planId }: { planId?: string }) {
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <TaskFormFields />
-          {modalState.mode === "edit" && updateFields()}
+          {modalState.mode === "edit"}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
             <Button onClick={handleCloseModal}>Cancel</Button>
             <Button
