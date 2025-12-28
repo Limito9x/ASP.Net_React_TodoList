@@ -35,7 +35,7 @@ export default function PhasePage() {
     {
       key: "routine",
       label: "Routines",
-      children: <PhaseRoutineTab />,
+      children: <PhaseRoutineTab phase={phase} goalsOptions={goalsOptions} phaseId={phaseId} />,
     },
   ];
 

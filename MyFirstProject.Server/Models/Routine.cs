@@ -22,11 +22,11 @@
 
     public class Routine: BaseEntity
     {
-        public required string Title { get; set; }
+        public required string Name { get; set; }
         public string? Description { get; set; }
         public TimeOnly ScheduledTime { get; set; }
         public RecurrenceRule Rule { get; set; }
-        public DateTime NextOccurence { get; set; }
+        public DateTime NextOccurrence { get; set; }
         public List<int>? LinkedFormIds { get; set; } = new();
         //public List<MetadataForm> Data { get; set; } = new List<MetadataForm>();
         public List<string>? LinkedGoalIds { get; set; } = new(); // Tham chiếu đến mục tiêu liên kết goal config của phase

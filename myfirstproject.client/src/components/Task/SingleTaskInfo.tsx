@@ -5,7 +5,6 @@ export default function SingleTaskInfo({
 }: {
   form: ReturnType<typeof Form.useForm>[0];
 }) {
-  // ✅ Dùng Form.useWatch để theo dõi reactive
   const taskType = Form.useWatch("type", form);
   const isEvent = taskType === "Event";
 

@@ -30,21 +30,21 @@ namespace MyFirstProject.Server.Services.TaskLog
         }
         public async Task<TaskLogDto?> GetTaskLogByIdAsync(int taskId)
         {
-            var tasklog = await _context.TaskLogs.FindAsync(taskId);
+            var tasklog = await _context.TaskLogs
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == taskId);
             if (tasklog == null)
             {
                 return null;
             }
-            var tasklogDto = _mapper.Map<TaskLogDto>(tasklog);
-            return tasklogDto;
+            return _mapper.Map<TaskLogDto>(tasklog);
         }
         public async Task<TaskLogDto> CreateTaskLogAsync(RequestTaskLogDto taskLogDto)
         {
             var tasklog = _mapper.Map<Models.TaskLog>(taskLogDto);
             _context.TaskLogs.Add(tasklog);
             await _context.SaveChangesAsync();
-            var createdTaskLogDto = _mapper.Map<TaskLogDto>(tasklog);
-            return createdTaskLogDto;
+            return _mapper.Map<TaskLogDto>(tasklog);
         }
         public async Task<TaskLogDto?> UpdateTaskLogAsync(int taskLogId, RequestTaskLogDto taskLogDto)
         {
@@ -55,12 +55,11 @@ namespace MyFirstProject.Server.Services.TaskLog
             }
             _mapper.Map(taskLogDto, existingTaskLog);
             await _context.SaveChangesAsync();
-            var updatedTaskLogDto = _mapper.Map<TaskLogDto>(existingTaskLog);
-            return updatedTaskLogDto;
+            return _mapper.Map<TaskLogDto>(existingTaskLog);
         }
         public async Task<bool> DeleteTaskLogAsync(int taskLogId)
         {
-            var tasklog = _context.TaskLogs.Find(taskLogId);
+            var tasklog = await _context.TaskLogs.FindAsync(taskLogId);
             if(tasklog == null)
             {
                 return false;

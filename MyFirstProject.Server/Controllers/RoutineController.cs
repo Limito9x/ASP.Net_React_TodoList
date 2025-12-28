@@ -53,11 +53,13 @@ namespace MyFirstProject.Server.Controllers
         {
             try
             {
+                Console.WriteLine("Creating routine with name: " + routineDto);
                 var createdRoutine = await _routineService.CreateRoutineAsync(routineDto);
                 return Ok(createdRoutine);
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Error creating routine: " + ex.Message);
                 return BadRequest(ex.Message);
             }
         }

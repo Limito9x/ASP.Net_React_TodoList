@@ -1,8 +1,15 @@
 import api from "./axiosConfig";
-import type { Routine } from "../types/routine";
+import type { Routine, RecurrenceRule } from "../types/routine";
 import type { TaskLog } from "../types/taskLog";
 
-export type RoutinePayload = Omit<Routine, "id" | "createdAt" | "updatedAt">;
+export type RoutinePayload = {
+  name: string;
+  description?: string;
+  scheduledTime: string;
+  rule: RecurrenceRule;
+  phaseId?: number;
+  linkedGoalIds?: number[];
+};
 
 export type RoutineResponse = Routine & {
   taskLogs: TaskLog[];

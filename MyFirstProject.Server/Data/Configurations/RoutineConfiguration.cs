@@ -10,13 +10,13 @@ namespace MyFirstProject.Server.Data.Configurations
         {
             builder.ToTable("Routines");
             builder.HasKey(r => r.Id);
-            builder.Property(r => r.Title)
+            builder.Property(r => r.Name)
                 .IsRequired()
                 .HasMaxLength(200);
-            builder.HasIndex(r => new { r.Title, r.UserId })
+            builder.HasIndex(r => new { r.Name, r.UserId })
                 .IsUnique()
                 .HasFilter("\"DeletedAt\" IS NULL");
-            builder.HasIndex(r => r.NextOccurence);
+            builder.HasIndex(r => r.NextOccurrence);
             builder.Property(r => r.Rule)
                 .HasColumnType("jsonb");
             builder.HasIndex(r => r.Rule)
