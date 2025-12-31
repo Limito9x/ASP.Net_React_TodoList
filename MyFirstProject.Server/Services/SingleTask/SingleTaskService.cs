@@ -6,6 +6,7 @@ using MyFirstProject.Server.Services.UserService;
 using MyFirstProject.Server.Dtos;
 using MapsterMapper;
 using MyFirstProject.Server.Services.Form;
+using MyFirstProject.Server.Services.TaskLog;
 
 namespace MyFirstProject.Server.Services.SingleTask
 {
@@ -24,13 +25,15 @@ namespace MyFirstProject.Server.Services.SingleTask
         private readonly ICurrentUserService _currentUserService;
         private readonly IFormService _formService;
         private readonly IMapper _mapper;
+        private readonly ITaskLogService _taskLogService;
 
         public SingleTaskService(
             ApplicationDbContext context,
             IAssetLinkService assetLinkService,
             ICurrentUserService currentUserService,
             IMapper mapper,
-            IFormService formService
+            IFormService formService,
+            ITaskLogService taskLogService
             )
         {
             _context = context;
@@ -38,6 +41,7 @@ namespace MyFirstProject.Server.Services.SingleTask
             _currentUserService = currentUserService;
             _mapper = mapper;
             _formService = formService;
+            _taskLogService = taskLogService;
         }
         public async Task<ResponseSingleTaskDto> CreateSingleTaskAsync(RequestSingleTaskDto taskItemDto)
         {
@@ -96,6 +100,27 @@ namespace MyFirstProject.Server.Services.SingleTask
                 return null;
             }
             _mapper.Map(singleTaskDto, existingTaskItem);
+            existingTaskItem.Status = singleTaskDto.Outcome switch
+            {
+                TaskLogStatus.Success => SingleTaskStatus.Completed,
+                TaskLogStatus.Skipped => SingleTaskStatus.Cancelled,
+                TaskLogStatus.Failed => SingleTaskStatus.Pending,
+                TaskLogStatus.Partial => SingleTaskStatus.Pending,
+                _ => existingTaskItem.Status
+            };
+
+            var taskLogDto = new RequestTaskLogDto(
+                singleTaskDto.Note,
+                singleTaskDto.Outcome,
+                singleTaskDto.Data,
+                singleTaskDto.Contributions,
+                null,
+                taskId,
+                existingTaskItem.PhaseId
+            );
+
+            await _taskLogService.CreateTaskLogAsync(taskLogDto);
+
             await _context.SaveChangesAsync();
             return _mapper.Map<ResponseSingleTaskDto>(existingTaskItem);
         }

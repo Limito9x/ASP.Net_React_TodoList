@@ -9,7 +9,8 @@ namespace MyFirstProject.Server.Mappings
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<RequestTaskLogDto, TaskLog>()
-                .Map(dest => dest.Data, src => src.Data);
+                .Map(dest => dest.Data, src => src.Data)
+                .Map(dest => dest.Contributions, src => src.Contributions);
         }
     }
 }

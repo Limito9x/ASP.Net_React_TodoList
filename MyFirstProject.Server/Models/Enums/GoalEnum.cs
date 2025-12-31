@@ -1,10 +1,8 @@
 ﻿namespace MyFirstProject.Server.Models.Enums
 {
-    public enum GoalType
+    public enum UpdateStrategy
     {
-        Numeric,
-        Count,
-        Boolean,
-        TaskOnly
+        Absolute, // Theo dõi trạng thái, chỉ số mỗi lần thực hiện
+        Cumulative // Cộng dồng tích lũy thêm mỗi lần thực hiện
     }
 }

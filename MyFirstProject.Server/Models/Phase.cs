@@ -6,22 +6,11 @@ namespace MyFirstProject.Server.Models
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; }
-        public GoalType Type { get; set; } = GoalType.TaskOnly;
+        public UpdateStrategy Type { get; set; }
         public double Start { get; set; }
         public double Target { get; set; }
         public double Current { get; set; }
         public string? Unit { get; set; }
-        public decimal CalculateProgress()
-        {
-            if (Type == GoalType.TaskOnly) return 0;
-            if (Type == GoalType.Boolean) return Current >= 1 ? 100 : 0;
-
-            double totalDistance = Math.Abs(Target - Start);
-            if (totalDistance < 0.000001) return Current >= Target ? 100 : 0;
-
-            double achievedDistance = Math.Abs(Current - Start);
-            return (decimal)Math.Clamp((achievedDistance / totalDistance) * 100, 0, 100);
-        }
     }
     public class Phase: TimeLineEntity
     {
@@ -36,5 +25,6 @@ namespace MyFirstProject.Server.Models
         public decimal? Progress { get; set; }
         public ICollection<SingleTask>? SingleTasks { get; set; } = new List<SingleTask>();
         public ICollection<Routine>? Routines { get; set; } = new List<Routine>();
+        public ICollection<TaskLog>? TaskLogs { get; set; } = new List<TaskLog>();
     }
 }

@@ -1,6 +1,6 @@
 import type { TimeLineEntity } from "./common";
 
-export type GoalType = "Numeric" | "Boolean" | "Count" | "TaskOnly";
+export type GoalType = "Absolute" | "Cumulative";
 
 export type GoalConfig = {
   id?: string;

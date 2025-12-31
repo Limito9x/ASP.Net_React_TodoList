@@ -1,6 +1,8 @@
 import type { BaseEntity } from "./common";
 import type { Form } from "./form";
 
+export type TaskLogStatus = "Success" | "Partial" | "Failed" | "Skipped";
+
 export interface TaskLog extends BaseEntity {
   name: string;
   description: string;
@@ -8,4 +10,5 @@ export interface TaskLog extends BaseEntity {
   completedAt?: string;
   note?: string;
   data?: Form[];
+  status: TaskLogStatus;
 }

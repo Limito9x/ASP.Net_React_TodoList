@@ -17,6 +17,7 @@ import { useState } from "react";
 import dayjs from "dayjs";
 import { planService, type PlanResponse } from "../../services/planService";
 import CreatePlan from "./CreatePlan";
+import { useNavigate } from "react-router-dom";
 
 // --- 1. MAPPERS (Chuyển đổi dữ liệu) ---
 // Có thể tách sang file utils/mappers.ts nếu muốn
@@ -141,16 +142,7 @@ export default function PlanPage() {
     form.resetFields();
   };
 
-  const handleSubmit = (values: any) => {
-    // Sử dụng Mapper để chuẩn bị dữ liệu gửi đi
-    const payload = planMappers.toApiPayload(values);
-
-    if (modalState.mode === "create") {
-      createMutation.mutate(payload);
-    } else if (modalState.mode === "edit" && modalState.editingId) {
-      updateMutation.mutate({ id: modalState.editingId, payload });
-    }
-  };
+  const navigate = useNavigate();
 
   return (
     <div style={{ padding: 20 }}>
@@ -193,7 +185,7 @@ export default function PlanPage() {
               title={<strong>{plan.title}</strong>}
               extra={
                 <div style={{ display: "flex", gap: 8 }}>
-                  <Button href={`/plans/${plan.id}`}>View</Button>
+                  <Button onClick={() => navigate(`/plans/${plan.id}`)}>View</Button>
                   <Button
                     icon={<EditOutlined />}
                     onClick={() => handleOpenEdit(plan)}

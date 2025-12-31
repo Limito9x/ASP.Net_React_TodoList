@@ -1,6 +1,6 @@
 ﻿namespace MyFirstProject.Server.Models.Enums
 {
-    public enum RoutineStatus
+    public enum TaskLogStatus
     {
         Success,
         Partial,

@@ -15,6 +15,7 @@ namespace MyFirstProject.Server.Services.Plan
         Task<ResponsePlanDto?> GetPlanByIdAsync(int PlanId);
         Task<ResponsePlanDto?> UpdatePlanAsync(int PlanId, RequestPlanDto PlanDto);
         Task<bool> DeletePlanAsync(int PlanId);
+        Task UpdatePlanProgressAsync(int PlanId);
     }
     public class PlanService : IPlanService
     {
@@ -52,7 +53,7 @@ namespace MyFirstProject.Server.Services.Plan
                     phase.UserId = userId;
                 }
             }
-
+            Plan.Progress = 0;
             // Add to DB
             await _context.Plans.AddAsync(Plan);
             // Save changes
@@ -97,12 +98,24 @@ namespace MyFirstProject.Server.Services.Plan
         public async Task<bool> DeletePlanAsync(int PlanId)
         {
             var userId = _currentUserService.UserId;
-            var Plan = await _context.Plans.FirstOrDefaultAsync(p=>p.Id==PlanId);
+            var Plan = await _context.Plans.FirstOrDefaultAsync(p => p.Id == PlanId);
             if (Plan == null) return false;
             await _assetLinkService.RemoveAssetLinkByAsync(PlanId, AssetLinkType.PLAN);
             _context.Plans.Remove(Plan);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task UpdatePlanProgressAsync(int PlanId)
+        {
+            var plan = await _context.Plans
+                .Include(p => p.Phases)
+                .FirstOrDefaultAsync(p => p.Id == PlanId);
+            if (plan == null) return;
+            plan.Progress = plan.Phases != null && plan.Phases.Any()
+                ? plan.Phases.Average(phase => phase.Progress ?? 0)
+                : 0;
+            await _context.SaveChangesAsync();
         }
     }
 }

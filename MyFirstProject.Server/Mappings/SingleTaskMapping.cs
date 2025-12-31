@@ -10,19 +10,24 @@ namespace MyFirstProject.Server.Mappings
         {
             // Map từ RequestSingleTaskDto -> SingleTask
             config.NewConfig<RequestSingleTaskDto, SingleTask>()
-                .Map(dest => dest.LinkedGoalIds, src => src.LinkedGoalIds ?? new List<string>())
+                .Map(dest => dest.LinkedGoals, src => src.LinkedGoals ?? new List<LinkedGoal>())
                 .Map(dest => dest.LinkedFormIds, src => src.LinkedFormIds ?? new List<int>());
-            
-            // Map từ ExecuteSingleTaskDto -> SingleTask (chỉ update Data và các field liên quan)
-            config.NewConfig<ExecuteSingleTaskDto, SingleTask>()
-                .Map(dest => dest.Status, src => src.Status)
-                .Map(dest => dest.CompletedAt, src => src.CompletedAt)
-                .Map(dest => dest.Note, src => src.Note)
-                .Map(dest => dest.Data, src => src.Data ?? new List<MetadataForm>())
-                .IgnoreNonMapped(true);
             
             // Map từ SingleTask -> SimpleResponseSingleTaskDto
             config.NewConfig<SingleTask, SimpleResponseSingleTaskDto>();
+
+            config.NewConfig<SingleTask, ScheduleTodayDto>()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Name, src => src.Name)
+                .Map(dest => dest.Description, src => src.Description)
+                .Map(dest => dest.Type, src => "Single") // Chuỗi literal
+                .Map(dest => dest.SubType, src => src.Type) // SingleTaskType
+                .Map(dest => dest.StartAt, src => src.StartAt ?? src.CreatedAt) // Fallback nếu null
+                .Map(dest => dest.EndAt, src => src.EndAt)
+                .Map(dest => dest.DueDate, src => src.DueDate)
+                .Map(dest => dest.LinkedGoals, src => src.LinkedGoals)
+                .Map(dest => dest.LinkedFormIds, src => src.LinkedFormIds)
+                .Map(dest => dest.Phase, src => src.Phase);
         }
     }
 }

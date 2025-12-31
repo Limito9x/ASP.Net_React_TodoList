@@ -64,6 +64,24 @@ namespace MyFirstProject.Server.Controllers
             }
         }
 
+        [HttpPost("{id}/checkin")]
+        public async Task<ActionResult<ResponseRoutineDto>> CheckInRoutine(int id, [FromBody] CheckinRoutineDto checkinRoutineDto)
+        {
+            try
+            {
+                var checkedInRoutine = await _routineService.CheckinRoutineAsync(id, checkinRoutineDto);
+                if (checkedInRoutine == null)
+                {
+                    return NotFound();
+                }
+                return Ok(checkedInRoutine);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPatch("{id}")]
         public async Task<ActionResult<ResponseRoutineDto>> UpdateRoutine(int id, [FromBody] RequestRoutineDto routineDto)
         {

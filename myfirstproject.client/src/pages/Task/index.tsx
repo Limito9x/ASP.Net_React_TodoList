@@ -1,4 +1,3 @@
-import { useParams } from "react-router-dom";
 import EditTask from "../../components/Template/EditTask";
 import TemplateSidebar from "../../components/Template/TemplateSidebar";
 import { Row, Col, Form } from "antd";
@@ -7,7 +6,6 @@ import { useState } from "react";
 import type { Form as FormType } from "../../types/form";
 
 export default function Task() {
-  const { taskId } = useParams<{ taskId: string }>();
   const [form] = Form.useForm();
 
   const [selectedInstance, setSelectedInstance] = useState<ReturnType<
@@ -54,7 +52,6 @@ export default function Task() {
 
   return (
     <div>
-      Task Page for Task ID: {taskId}{" "}
       <Row style={{ marginTop: 20 }}>
         <Col span={16}>
           <EditTask

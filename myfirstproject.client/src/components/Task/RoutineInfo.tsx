@@ -1,6 +1,6 @@
 import { Form, Input, Select } from "antd";
 
-const Frequence = ["Daily", "Weekly", "Monthly", "Yearly"] as const;
+const Frequency = ["Daily", "Weekly", "Monthly", "Yearly"] as const;
 
 const daysOfWeekOptions = [
   { label: "CN", value: 0 },
@@ -124,17 +124,17 @@ function RecurrenceRule({
 }: {
   form: ReturnType<typeof Form.useForm>[0];
 }) {
-  const frequence = Form.useWatch(["rule", "frequence"], form);
+  const frequency = Form.useWatch(["rule", "frequency"], form);
 
   return (
     <>
       <Form.Item
-        name={["rule", "frequence"]}
-        label="Frequence"
+        name={["rule", "frequency"]}
+        label="Frequency"
         initialValue="Daily"
       >
-        <Select placeholder="Select frequence">
-          {Frequence.map((freq) => (
+        <Select placeholder="Select frequency">
+          {Frequency.map((freq) => (
             <Select.Option key={freq} value={freq}>
               {freq}
             </Select.Option>
@@ -142,13 +142,13 @@ function RecurrenceRule({
         </Select>
       </Form.Item>
 
-      {frequence === "Weekly" && (
+      {frequency === "Weekly" && (
         <Form.Item name={["rule", "daysOfWeek"]} label="Days of Week">
           <DaySelector />
         </Form.Item>
       )}
 
-      {frequence === "Monthly" && (
+      {frequency === "Monthly" && (
         <Form.Item name={["rule", "daysOfMonth"]} label="Days of Month">
           <MonthDaySelector />
         </Form.Item>
@@ -189,7 +189,7 @@ export default function RoutineInfo({
           return value;
         }}
       >
-        <Input type="time" step="1" placeholder="HH:MM:SS" />
+        <Input type="time" placeholder="HH:MM" />
       </Form.Item>
     </div>
   );

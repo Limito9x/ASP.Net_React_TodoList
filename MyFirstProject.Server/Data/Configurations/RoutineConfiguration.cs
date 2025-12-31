@@ -23,7 +23,7 @@ namespace MyFirstProject.Server.Data.Configurations
                 .HasMethod("gin");
             builder.Property(r => r.LinkedFormIds)
                 .HasColumnType("jsonb");
-            builder.Property(r => r.LinkedGoalIds)
+            builder.Property(r => r.LinkedGoals)
                 .HasColumnType("jsonb");
         }
     }

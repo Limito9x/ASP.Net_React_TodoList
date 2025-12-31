@@ -22,6 +22,15 @@
         List <SimpleResponsePhaseDto>? Phases
     );
 
+    public record SimpleResponsePlanDto
+    (
+        int Id,
+        string Title,
+        decimal? Progress,
+        DateTime? StartDate,
+        DateTime? EndDate
+    );
+
     public record SuggestPlanDto
     (
         string Prompt

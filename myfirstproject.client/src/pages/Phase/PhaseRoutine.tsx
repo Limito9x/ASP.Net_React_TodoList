@@ -5,6 +5,7 @@ import { useState } from "react";
 import { type RoutinePayload, routineService } from "../../services/routineService";
 import { useNavigate } from "react-router-dom";
 import RoutineInfo from "../../components/Task/RoutineInfo";
+import LinkedGoal from "../../components/Task/LinkedGoal";
 
 const RoutineMappers = {
   toRoutinePayload: (values: any, phaseId?: number) => {
@@ -16,11 +17,11 @@ const RoutineMappers = {
     };
 
     if(values.rule) {
-      const frequence = values.rule.frequence;
-      payload.rule.frequence = frequence;
-      if (frequence === "Weekly" && values.rule.byWeekDays) {
+      const frequency = values.rule.frequency;
+      payload.rule.frequency = frequency;
+      if (frequency === "Weekly" && values.rule.byWeekDays) {
         payload.rule.daysOfWeek = values.rule.byWeekDays;
-      } else if (frequence === "Monthly" && values.rule.byMonthDay) {
+      } else if (frequency === "Monthly" && values.rule.byMonthDay) {
         payload.rule.daysOfMonth = values.rule.byMonthDay;
       }
     }
@@ -29,8 +30,8 @@ const RoutineMappers = {
       payload.phaseId = phaseId;
     }
 
-    if (values.linkedGoalIds) {
-      payload.linkedGoalIds = values.linkedGoalIds;
+    if (values.linkedGoals) {
+      payload.linkedGoals = values.linkedGoals;
     }
     console.log("Routine payload:", payload);
     return payload;
@@ -41,19 +42,14 @@ const RoutineMappers = {
       description: task.description,
       rule: task.recurrenceRule,
       scheduledTime: task.scheduledTime,
-      linkedGoalIds:
-        task.linkedGoals?.map((goal: any) => goal.id) ||
-        task.linkedGoalIds?.map((goal: any) =>
-          typeof goal === "object" ? goal.id : goal
-        ) ||
-        task.goals?.map((goal: any) => goal.id) ||
-        [],
+      linkedGoals: task.linkedGoals || [],
+      selectedGoalIds: task.linkedGoals?.map((goal: any) => goal.goalId) || []
     };
   },
 };
 
 interface PhaseSingleTaskTabProps {
-  goalsOptions: { label: string; value: string }[];
+  goalsOptions: { label: string; value: string, type: "Cumulative" | "Absolute" }[];
   phase: PhaseResponse | undefined;
   phaseId?: string;
 }
@@ -95,7 +91,7 @@ export default function PhaseRoutineTab({
     }: {
       id: number;
       payload: RoutinePayload;
-    }) => routineService.updateRoutine(String(id), payload),
+    }) => routineService.updateRoutine(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["phase", phaseId] });
     },
@@ -165,14 +161,7 @@ export default function PhaseRoutineTab({
         >
           <Form form={form} layout="vertical">
             <RoutineInfo form={form} />
-            <Form.Item name="linkedGoalIds" label="Contribute to Goals">
-              <Select
-                mode="multiple"
-                placeholder="Link Goals"
-                style={{ width: "100%" }}
-                options={goalsOptions}
-              />
-            </Form.Item>
+            <LinkedGoal goalsOptions={goalsOptions} form={form} />
           </Form>
         </Modal>
       </div>

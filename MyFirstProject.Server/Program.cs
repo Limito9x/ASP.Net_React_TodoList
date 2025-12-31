@@ -20,6 +20,7 @@ using MyFirstProject.Server.Services.Routine;
 using MyFirstProject.Server.Services.SingleTask;
 using MyFirstProject.Server.Services.TaskLog;
 using MyFirstProject.Server.Services.UserService;
+using MyFirstProject.Server.Services.Schedule;
 using Npgsql;
 using System.Reflection;
 using System.Text;
@@ -92,6 +93,7 @@ builder.Services.AddScoped<IAuthService, AuthService>()
                 .AddScoped<ITaskLogService, TaskLogService>()
                 .AddScoped<IFormService, FormService>()
                 .AddScoped<IPhaseService, PhaseService>()
+                .AddScoped<IScheduleService, ScheduleService>()
                 .AddScoped<IMapper, ServiceMapper>();
 
 

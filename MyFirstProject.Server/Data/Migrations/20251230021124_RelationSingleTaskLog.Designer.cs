@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyFirstProject.Server.Data;
 using MyFirstProject.Server.Models;
@@ -13,13 +14,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyFirstProject.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251230021124_RelationSingleTaskLog")]
+    partial class RelationSingleTaskLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.1")
+                .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -1011,7 +1014,7 @@ namespace MyFirstProject.Server.Data.Migrations
 
             modelBuilder.Entity("MyFirstProject.Server.Models.TaskLog", b =>
                 {
-                    b.HasOne("MyFirstProject.Server.Models.Phase", "Phase")
+                    b.HasOne("MyFirstProject.Server.Models.Phase", null)
                         .WithMany("TaskLogs")
                         .HasForeignKey("PhaseId");
 
@@ -1022,8 +1025,6 @@ namespace MyFirstProject.Server.Data.Migrations
                     b.HasOne("MyFirstProject.Server.Models.SingleTask", "SingleTask")
                         .WithMany("TaskLogs")
                         .HasForeignKey("SingleTaskId");
-
-                    b.Navigation("Phase");
 
                     b.Navigation("Routine");
 

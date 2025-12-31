@@ -11,15 +11,15 @@ namespace MyFirstProject.Server.Dtos
         DateTime? StartAt,
         DateTime? EndAt,
         SingleTaskType Type,
-        List<string>? LinkedGoalIds,
+        List<LinkedGoal>? LinkedGoals,
         List<int>? LinkedFormIds,
         int? PhaseId
     );
 
     public record ExecuteSingleTaskDto
     (
-        SingleTaskStatus Status,
-        DateTime? CompletedAt,
+        TaskLogStatus Outcome,
+        List<Contribution>? Contributions,
         string? Note,
         List<MetadataForm>? Data
     );
@@ -37,7 +37,7 @@ namespace MyFirstProject.Server.Dtos
         SingleTaskType Type,
         string? Note,
         List<MetadataForm> Data,
-        List<string> LinkedGoalIds,
+        List<LinkedGoal> LinkedGoals,
         List<int> LinkedFormIds,
         int? PhaseId
     );

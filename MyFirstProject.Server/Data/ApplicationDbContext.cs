@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MyFirstProject.Server.Models;
 using MyFirstProject.Server.Models.Interfaces;
+using System.Linq.Expressions;
 using System.Reflection.Emit;
 
 namespace MyFirstProject.Server.Data
@@ -29,6 +30,8 @@ namespace MyFirstProject.Server.Data
         public DbSet<Phase> Phases { get; set; } = null!;
         public DbSet<Routine> Routines { get; set; } = null!;
         public DbSet<TaskLog> TaskLogs { get; set; } = null!;
+        public DbSet<ChatSession> ChatSessions { get; set; } = null!;
+        public DbSet<ChatMessage> ChatMessages { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -37,6 +40,19 @@ namespace MyFirstProject.Server.Data
             base.OnModelCreating(builder);
 
             builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+            foreach (var entityType in builder.Model.GetEntityTypes())
+            {
+                if (typeof(ISoftDeletable).IsAssignableFrom(entityType.ClrType))
+                {
+                    var parameter = Expression.Parameter(entityType.ClrType, "e");
+                    var property = Expression.Property(parameter, nameof(ISoftDeletable.DeletedAt));
+                    var condition = Expression.Equal(property, Expression.Constant(null, typeof(DateTime?)));
+                    var lambda = Expression.Lambda(condition, parameter);
+
+                    builder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+                }
+            }
         }
 
         public override int SaveChanges()
@@ -76,6 +92,7 @@ namespace MyFirstProject.Server.Data
             foreach (var entry in entries)
             {
                 var entity = (ISoftDeletable)entry.Entity;
+                entity.DeletedAt = DateTime.UtcNow;
                 entry.State = EntityState.Modified;
             }
         }

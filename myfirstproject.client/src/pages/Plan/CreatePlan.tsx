@@ -231,15 +231,12 @@ export default function CreatePlan({
                                   <Row gutter={16}>
                                     <Col span={6}>
                                       <Form.Item name={[goalName, "type"]}>
-                                        <Select placeholder="Chọn loại mục tiêu">
-                                          <Select.Option value="Numeric">
-                                            Tăng/ giảm chỉ số
+                                        <Select placeholder="Chiến lược đánh giá">
+                                          <Select.Option value="Absolute">
+                                            Theo dõi chỉ số qua thời gian
                                           </Select.Option>
-                                          <Select.Option value="Count">
-                                            Tích lũy số lượng
-                                          </Select.Option>
-                                          <Select.Option value="Binary">
-                                            Hoàn thành/ không hoàn thành
+                                          <Select.Option value="Cumulative">
+                                            Tích lũy dần theo thời gian
                                           </Select.Option>
                                         </Select>
                                       </Form.Item>

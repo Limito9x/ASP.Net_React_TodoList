@@ -1,6 +1,8 @@
 import api from "./axiosConfig";
 import type { Routine, RecurrenceRule } from "../types/routine";
-import type { TaskLog } from "../types/taskLog";
+import type { TaskLog, TaskLogStatus } from "../types/taskLog";
+import type { ActualLinkedGoal, DefaultLinkedGoal } from "../types/goal";
+import type { Form } from "../types/form";
 
 export type RoutinePayload = {
   name: string;
@@ -8,8 +10,15 @@ export type RoutinePayload = {
   scheduledTime: string;
   rule: RecurrenceRule;
   phaseId?: number;
-  linkedGoalIds?: number[];
+  linkedGoals?: DefaultLinkedGoal[];
 };
+
+export type RoutineCheckinPayload = {
+    outcome: TaskLogStatus;
+    note?: string;
+    contributions?: ActualLinkedGoal[];
+    data?: Form[];
+}
 
 export type RoutineResponse = Routine & {
   taskLogs: TaskLog[];
@@ -20,7 +29,7 @@ export const routineService = {
     const response = await api.get<RoutineResponse[]>("/routines");
     return response.data;
   },
-  getRoutineById: async (id: string) => {
+  getRoutineById: async (id: number) => {
     const response = await api.get<RoutineResponse>(`/routines/${id}`);
     return response.data;
   },
@@ -28,14 +37,18 @@ export const routineService = {
     const response = await api.post<RoutineResponse>("/routines", payload);
     return response.data;
   },
-  updateRoutine: async (id: string, payload: RoutinePayload) => {
+  checkinRoutine: async (id: number, payload: RoutineCheckinPayload) => {
+    const response = await api.post<RoutineResponse>(`/routines/${id}/checkin`, payload);
+    return response.data;
+  },
+  updateRoutine: async (id: number, payload: RoutinePayload) => {
     const response = await api.patch<RoutineResponse>(
       `/routines/${id}`,
       payload
     );
     return response.data;
   },
-  deleteRoutine: async (id: string) => {
+  deleteRoutine: async (id: number) => {
     const response = await api.delete<void>(`/routines/${id}`);
     return response.data;
   },

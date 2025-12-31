@@ -1,6 +1,6 @@
 import { type PhaseResponse } from "../../services/phaseService";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { Button, Card, Form, Modal, Select } from "antd";
+import { Button, Card, Form, Modal } from "antd";
 import { useState } from "react";
 import SingleTaskInfo from "../../components/Task/SingleTaskInfo";
 import {
@@ -9,6 +9,7 @@ import {
 } from "../../services/singleTaskService";
 import dayjs from "dayjs";
 import { useNavigate, useParams } from "react-router-dom";
+import LinkedGoal from "../../components/Task/LinkedGoal";
 
 const TaskMappers = {
   toSingleTaskPayload: (values: any, phaseId?: number) => {
@@ -30,8 +31,8 @@ const TaskMappers = {
       payload.endAt = values.endAt.toISOString();
     }
 
-    if (values.linkedGoalIds) {
-      payload.linkedGoalIds = values.linkedGoalIds;
+    if (values.linkedGoals) {
+      payload.linkedGoals = values.linkedGoals;
     }
 
     return payload;
@@ -51,19 +52,14 @@ const TaskMappers = {
       startAt: formatDate(task.startAt),
       endAt: formatDate(task.endAt),
       // Xử lý nhiều trường hợp có thể: linkedGoals, linkedGoalIds, goals
-      linkedGoalIds:
-        task.linkedGoals?.map((goal: any) => goal.id) ||
-        task.linkedGoalIds?.map((goal: any) =>
-          typeof goal === "object" ? goal.id : goal
-        ) ||
-        task.goals?.map((goal: any) => goal.id) ||
-        [],
+      linkedGoals: task.linkedGoals || [],
+      selectedGoalIds: task.linkedGoals?.map((goal: any) => goal.goalId) || []
     };
   },
 };
 
 interface PhaseSingleTaskTabProps {
-  goalsOptions: { label: string; value: string }[];
+  goalsOptions: { label: string; value: string, type: "Cumulative" | "Absolute" }[];
   phase: PhaseResponse | undefined;
   phaseId?: string;
 }
@@ -105,7 +101,7 @@ export default function PhaseSingleTaskTab({
     }: {
       id: number;
       payload: Partial<TaskRequestPayload>;
-    }) => singleTaskService.updateTask(String(id), payload),
+    }) => singleTaskService.updateTask(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["phase", phaseId] });
     },
@@ -175,14 +171,7 @@ export default function PhaseSingleTaskTab({
         >
           <Form form={form} layout="vertical">
             <SingleTaskInfo form={form} />
-            <Form.Item name="linkedGoalIds" label="Contribute to Goals">
-              <Select
-                mode="multiple"
-                placeholder="Link Goals"
-                style={{ width: "100%" }}
-                options={goalsOptions}
-              />
-            </Form.Item>
+            <LinkedGoal goalsOptions={goalsOptions} form={form} />
           </Form>
         </Modal>
       </div>

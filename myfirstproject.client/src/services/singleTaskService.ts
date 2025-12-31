@@ -1,5 +1,7 @@
 import api from "./axiosConfig";
 import type { SingleTask } from "../types/singleTask";
+import type { DefaultLinkedGoal, ActualLinkedGoal } from "../types/goal";
+import type { TaskLogStatus } from "../types/taskLog";
 import type { Form } from "../types/form";
 
 export type TaskRequestPayload = {
@@ -9,15 +11,15 @@ export type TaskRequestPayload = {
     dueDate?: string; // ISO string
     startAt?: string; // ISO string
     endAt?: string; // ISO string
-    linkedGoalIds?: number[];
+    linkedGoals?: DefaultLinkedGoal[];
     phaseId?: number;
 };
 
 export type TaskExecutePayload = {
-    status: "Completed" | "Cancelled";
-    completedAt?: string; // ISO string
+    outcome: TaskLogStatus;
     note?: string;
-    forms?: Form[];
+    contributions?: ActualLinkedGoal[];
+    data?: Form[];
 }
 
 export const singleTaskService = {
@@ -29,15 +31,15 @@ export const singleTaskService = {
         const response = await api.post<SingleTask>("/single-tasks", payload);
         return response.data;
     },
-    updateTask: async (id: string, payload: Partial<TaskRequestPayload>) => {
+    updateTask: async (id: number, payload: Partial<TaskRequestPayload>) => {
         const response = await api.patch<SingleTask>(`/single-tasks/${id}`, payload);
         return response.data;
     },
-    executeTask: async (id: string, payload: TaskExecutePayload) => {
+    executeTask: async (id: number, payload: TaskExecutePayload) => {
         const response = await api.post<SingleTask>(`/single-tasks/${id}/execute`, payload);
         return response.data;
     },
-    deleteTask: async (id: string) => {
+    deleteTask: async (id: number) => {
         const response = await api.delete(`/single-tasks/${id}`);
         return response.data;
     }

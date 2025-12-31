@@ -37,7 +37,8 @@ namespace MyFirstProject.Server.Dtos
         string? Description,
         DateTime? StartDate,
         DateTime? EndDate,
-        int PlanId,
+        SimpleResponsePlanDto? Plan,
+        List<GoalConfig>? Goals,
         int Order,
         decimal? Progress
     );

@@ -16,12 +16,15 @@ export default function PhasePage() {
     queryFn: () => phaseService.getPhaseById(phaseId!),
   });
 
+  console.log("Phase data:", phase);
+
   const goalsOptions =
     phase?.goals
       .filter((goal) => goal.id !== undefined)
       .map((goal) => ({
         label: goal.name,
         value: goal.id!,
+        type: goal.type
       })) || [];
 
   const items = [
