@@ -5,8 +5,9 @@ import { mapRowToFormGroup, mapTemplateToFormGroup } from "../../utils/mapper";
 import { useState } from "react";
 import type { Form as FormType } from "../../types/form";
 
-export default function Task() {
-  const [form] = Form.useForm();
+export default function TaskForm(
+    {form}: {form: ReturnType<typeof Form.useForm>[0]}
+) {
 
   const [selectedInstance, setSelectedInstance] = useState<ReturnType<
     typeof mapTemplateToFormGroup

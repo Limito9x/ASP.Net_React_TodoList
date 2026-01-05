@@ -1,6 +1,7 @@
 import Header from "./Header";
 import { Outlet } from "react-router-dom";
 import { Layout } from "antd";
+import AIChat from "./AIChat";
 
 const { Content, Footer } = Layout;
 
@@ -11,6 +12,9 @@ export default function RootLayout() {
       <Content style={{ padding: "20px 50px" }}>
         <div style={{ background: "#fff", padding: 24, minHeight: 280 }}>
           <Outlet />
+          <div style={{ marginTop: 40 }}>
+            <AIChat />
+          </div>
         </div>
       </Content>
       <Footer style={{ textAlign: "center" }}>

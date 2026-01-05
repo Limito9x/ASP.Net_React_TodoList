@@ -24,7 +24,7 @@ export const mapTemplateToFormGroup = (template: Form) => {
   return {
     id: crypto.randomUUID(),
     templateId: template.id,
-    groupName: template.name,
+    name: template.name,
     rows: (template.rows || []).map((row) => mapRowToFormGroup(row)),
   };
 };

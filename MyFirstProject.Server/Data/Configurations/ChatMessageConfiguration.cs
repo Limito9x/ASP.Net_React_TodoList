@@ -15,6 +15,8 @@ namespace MyFirstProject.Server.Data.Configurations
                 .WithMany()
                 .HasForeignKey(cm => cm.SessionId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.Property(cm => cm.Data)
+                .HasColumnType("jsonb");
         }
     }
 }

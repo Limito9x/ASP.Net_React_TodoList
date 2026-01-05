@@ -1,6 +1,7 @@
-import { Form, Input, Select } from "antd";
+import { Form, Input, Select, Tabs } from "antd";
 import type { TodayTask } from "../../types/schedule";
 import { useEffect } from "react";
+import TaskForm from "./TaskForm";
 
 
 interface TaskLogInfoProps {
@@ -28,42 +29,54 @@ export default function TaskLogInfo({ scheduleItem, form }: TaskLogInfoProps) {
 
     return (
       <>
-        <Form.Item name="note" label="Note">
-          <Input.TextArea rows={4} placeholder="Enter log note" />
-        </Form.Item>
-        <Form.Item name="outcome" label="Status">
-          <Select>
-            <Select.Option value="Success">Success</Select.Option>
-            <Select.Option value="Partial">Partial</Select.Option>
-            <Select.Option value="Failed">Failed</Select.Option>
-            <Select.Option value="Skipped">Skipped</Select.Option>
-          </Select>
-        </Form.Item>
-        {contributions.length > 0 && (
-            <Form.List name="contributions">
-            {(fields) => (
-                <div>
-                {fields.map((field, index) => {
-                    const goal = contributions[index];
-                    return (
-                    <Form.Item
-                        name={[field.name,"actualValue"]}
-                        label={`Contribution to Goal: ${goal.name}`}
-                        key={goal.id}
-                        rules={[{ required: true, message: "Please input the contribution value!" }]}
-                    >
-                        <Input
-                        type="number"
-                        placeholder={`Enter contribution for ${goal.name}`}
-                        style={{ width: "100%" }}
-                        />
-                    </Form.Item>
-                    );
-                })}
-                </div>
+        <Tabs>
+          <Tabs.TabPane tab="Log Info" key="logInfo">
+            <Form.Item name="note" label="Note">
+              <Input.TextArea rows={4} placeholder="Enter log note" />
+            </Form.Item>
+            <Form.Item name="outcome" label="Status">
+              <Select>
+                <Select.Option value="Success">Success</Select.Option>
+                <Select.Option value="Partial">Partial</Select.Option>
+                <Select.Option value="Failed">Failed</Select.Option>
+                <Select.Option value="Skipped">Skipped</Select.Option>
+              </Select>
+            </Form.Item>
+            {contributions.length > 0 && (
+              <Form.List name="contributions">
+                {(fields) => (
+                  <div>
+                    {fields.map((field, index) => {
+                      const goal = contributions[index];
+                      return (
+                        <Form.Item
+                          name={[field.name, "actualValue"]}
+                          label={`Contribution to Goal: ${goal.name}`}
+                          key={goal.id}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Please input the contribution value!",
+                            },
+                          ]}
+                        >
+                          <Input
+                            type="number"
+                            placeholder={`Enter contribution for ${goal.name}`}
+                            style={{ width: "100%" }}
+                          />
+                        </Form.Item>
+                      );
+                    })}
+                  </div>
+                )}
+              </Form.List>
             )}
-            </Form.List>
-        )}    
+          </Tabs.TabPane>
+          <Tabs.TabPane tab="Form" key="form">
+            <TaskForm form={form} />
+          </Tabs.TabPane>
+        </Tabs>
       </>
     );
 }

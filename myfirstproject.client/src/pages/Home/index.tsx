@@ -14,6 +14,7 @@ const logMappers = {
     const payload: any = {
       note: values.note,
       outcome: values.outcome,
+      data: values.data,
       contributions: values.contributions?.map((contribution: any) => ({
         goalId: contribution.goalId,
         actualValue: Number(contribution.actualValue),
@@ -63,6 +64,7 @@ export default function Home() {
       singleTaskService.executeTask(payload.taskId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todayTasks"] });
+      handleCloseModal();
     },
     onError: (error) => {
       console.error("Error creating task log:", error);
@@ -73,6 +75,7 @@ export default function Home() {
     mutationFn: (payload: any) => routineService.checkinRoutine(payload.routineId, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["todayTasks"] });
+      handleCloseModal();
     },
     onError: (error) => {
       console.error("Error creating routine log:", error);

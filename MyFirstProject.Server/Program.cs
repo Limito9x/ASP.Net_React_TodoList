@@ -8,6 +8,7 @@ using Microsoft.SemanticKernel;
 using MyFirstProject.Server.Data;
 using MyFirstProject.Server.Data.Interceptors;
 using MyFirstProject.Server.Models;
+using MyFirstProject.Server.Plugins;  // ✅ Thêm using
 using MyFirstProject.Server.Services.AI;
 using MyFirstProject.Server.Services.AssetLink;
 using MyFirstProject.Server.Services.AssetService;
@@ -25,6 +26,7 @@ using Npgsql;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using MyFirstProject.Server.Services.Chat;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,10 +71,23 @@ builder.Services.AddAuthentication(options =>
 });
 
 var geminiApiKey = builder.Configuration["Gemini:ApiKey"];
-var modelId = "gemini-2.5-flash-lite";
+var modelId = "gemini-2.5-flash";
 
-builder.Services.AddKernel()
-    .AddGoogleAIGeminiChatCompletion(modelId, apiKey: geminiApiKey);
+builder.Services.AddScoped<Kernel>(sp =>
+{
+    var builder = Kernel.CreateBuilder();
+
+    // Thêm Gemini
+    builder.AddGoogleAIGeminiChatCompletion(
+        modelId: "gemini-2.5-flash",
+        apiKey: geminiApiKey);
+
+    // QUAN TRỌNG: Lấy UIPlugin từ DI và nạp vào Kernel
+    var uiPlugin = sp.GetRequiredService<UIPlugin>();
+    builder.Plugins.AddFromObject(uiPlugin, "UIPlugin"); // Đặt tên rõ ràng
+
+    return builder.Build();
+});
 
 // Cấu hình Mapster
 var config = TypeAdapterConfig.GlobalSettings;
@@ -94,8 +109,10 @@ builder.Services.AddScoped<IAuthService, AuthService>()
                 .AddScoped<IFormService, FormService>()
                 .AddScoped<IPhaseService, PhaseService>()
                 .AddScoped<IScheduleService, ScheduleService>()
+                .AddScoped<IChatService, ChatService>()
+                .AddScoped<UIWidgetCollector>()
+                .AddScoped<UIPlugin>()
                 .AddScoped<IMapper, ServiceMapper>();
-
 
 // Đăng ký Interceptor để xóa file trên Cloudinary khi xóa bản ghi Asset
 builder.Services.AddScoped<CloudinaryDeleteInterceptor>();
