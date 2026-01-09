@@ -67,7 +67,11 @@ namespace MyFirstProject.Server.Controllers
                         Type = "UI",
                         Data = data
                     };
-                    var widgetJson = JsonSerializer.Serialize(widgetChunk);
+
+                    var widgetJson = JsonSerializer.Serialize(widgetChunk, new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
                     var sseWidgetMessage = $"data: {widgetJson}\n\n";
                     await Response.WriteAsync(sseWidgetMessage);
                     await Response.Body.FlushAsync();

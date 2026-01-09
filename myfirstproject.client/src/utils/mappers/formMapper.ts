@@ -1,6 +1,6 @@
 
-import { fieldTypeOptions } from "../components/Template/DynamicField";
-import type { Form } from "../types/form";
+import { fieldTypeOptions } from "../../components/Template/DynamicField";
+import type { Form } from "../../types/form";
 
 export const mapRowToFormGroup = (row: any) => {
   // Kiểm tra nếu row hợp lệ và có fields

@@ -28,8 +28,8 @@ namespace MyFirstProject.Server.Dtos
         public string? Description { get; set; }
         [Description("Duration days of the plan")]
         public int DurationDays { get; set; }
-        [Description("List of tasks in the phase")]
-        public List<TaskUIData> Tasks { get; set; }
+        //[Description("List of tasks in the phase")]
+        //public List<TaskUIData> Tasks { get; set; }
     }
 
     public class TaskUIData
@@ -40,5 +40,22 @@ namespace MyFirstProject.Server.Dtos
         public string? Description { get; set; }
         [Description("Days offset from start date of phase")]
         public int DaysOffset { get; set; }
-        }
+    }
+
+    public class ConvertedPlanData
+    {
+        public string Title { get; set; }
+        public string? Description { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public List<ConvertedPhaseData> Phases { get; set; }
+    }
+
+    public class ConvertedPhaseData
+    {
+        public string Title { get; set; }
+        public string? Description { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+    }
 }

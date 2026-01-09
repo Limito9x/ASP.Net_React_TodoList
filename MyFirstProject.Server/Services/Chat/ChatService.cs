@@ -173,7 +173,10 @@ namespace MyFirstProject.Server.Services.Chat
                 Role = "assistant",
                 Content = aiMsg,
                 // Nếu có UI Data trong collector thì serialize lưu vào cột Data
-                Data = uiData.Any() ? JsonSerializer.SerializeToElement(uiData.First()) : null,
+                Data = uiData.Any() ? JsonSerializer.SerializeToElement(uiData.First(), new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                }) : null,
                 Type = uiData.Any() ? MessageType.UI : MessageType.Text
             };
 

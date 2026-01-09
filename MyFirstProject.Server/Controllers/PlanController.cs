@@ -67,7 +67,7 @@ namespace MyFirstProject.Server.Controllers
         }
 
         [HttpPut("{PlanId}")]
-        public async Task<ActionResult<ResponsePlanDto>> UpdatePlan(int PlanId, [FromBody] RequestPlanDto PlanDto)
+        public async Task<ActionResult<ResponsePlanDto>> UpdatePlan(int PlanId, [FromBody] UpdatePlanDto PlanDto)
         {
             try
             {

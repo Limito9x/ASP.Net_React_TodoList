@@ -2,6 +2,7 @@ import Header from "./Header";
 import { Outlet } from "react-router-dom";
 import { Layout } from "antd";
 import AIChat from "./AIChat";
+import PlanModal from "../components/Modal/PlanModal";
 
 const { Content, Footer } = Layout;
 
@@ -13,6 +14,7 @@ export default function RootLayout() {
         <div style={{ background: "#fff", padding: 24, minHeight: 280 }}>
           <Outlet />
           <div style={{ marginTop: 40 }}>
+            <PlanModal />
             <AIChat />
           </div>
         </div>

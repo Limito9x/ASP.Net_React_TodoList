@@ -13,8 +13,6 @@ export const useChat = (sessionId: number) => {
     queryFn: () => chatService.getMessagesBySession(sessionId),
   });
 
-  console.log("Chat history:", history);
-
   // 2. Hàm gửi tin nhắn (Stream)
   const sendMessage = async (message: string) => {
     setIsStreaming(true);

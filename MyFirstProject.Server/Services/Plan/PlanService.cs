@@ -1,4 +1,5 @@
-﻿using MapsterMapper;
+﻿using Mapster;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using MyFirstProject.Server.Data;
 using MyFirstProject.Server.Dtos;
@@ -13,7 +14,7 @@ namespace MyFirstProject.Server.Services.Plan
         Task<ResponsePlanDto> CreatePlanAsync(RequestPlanDto PlanDto);
         Task<List<ResponsePlanDto>> GetPlansByUserIdAsync();
         Task<ResponsePlanDto?> GetPlanByIdAsync(int PlanId);
-        Task<ResponsePlanDto?> UpdatePlanAsync(int PlanId, RequestPlanDto PlanDto);
+        Task<ResponsePlanDto?> UpdatePlanAsync(int PlanId, UpdatePlanDto PlanDto);
         Task<bool> DeletePlanAsync(int PlanId);
         Task UpdatePlanProgressAsync(int PlanId);
     }
@@ -85,12 +86,37 @@ namespace MyFirstProject.Server.Services.Plan
             return _mapper.Map<List<ResponsePlanDto>>(plans);
         }
 
-        public async Task<ResponsePlanDto?> UpdatePlanAsync(int PlanId, RequestPlanDto PlanDto)
+        public async Task<ResponsePlanDto?> UpdatePlanAsync(int PlanId, UpdatePlanDto PlanDto)
         {
             var userId = _currentUserService.UserId;
-            var plan = await _context.Plans.FindAsync(PlanId);
+            var plan = await _context.Plans.Include(p=>p.Phases).FirstOrDefaultAsync(p => p.Id == PlanId);
             if (plan == null) return null;
-            _mapper.Map(PlanDto, plan);
+
+            // Những Phase có trong DB nhưng KHÔNG có trong DTO gửi lên -> Xóa
+            var sentPhaseIds = PlanDto.Phases.Where(p => p.Id > 0).Select(p => p.Id).ToList();
+            var phasesToDelete = plan.Phases.Where(p => !sentPhaseIds.Contains(p.Id)).ToList();
+            _context.Phases.RemoveRange(phasesToDelete);
+
+            foreach (var phaseDto in PlanDto.Phases)
+            {
+                if (phaseDto.Id == null)
+                {
+                    var newPhase = _mapper.Map<Models.Phase>(phaseDto);
+                    newPhase.UserId = userId;
+                    plan.Phases.Add(newPhase);
+                }
+                else
+                {
+                    // SỬA: ID > 0 và có trong DB
+                    var existingPhase = plan.Phases.FirstOrDefault(p => p.Id == phaseDto.Id);
+                    if (existingPhase != null)
+                    {
+                        _mapper.Map(phaseDto, existingPhase); // Map đè dữ liệu mới
+                    }
+                }
+            }
+            
+            _mapper.Map(PlanDto, plan); // Map đè dữ liệu mới cho Plan
             await _context.SaveChangesAsync();
             return _mapper.Map<ResponsePlanDto>(plan);
         }

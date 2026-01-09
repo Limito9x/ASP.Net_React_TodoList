@@ -79,7 +79,7 @@ builder.Services.AddScoped<Kernel>(sp =>
 
     // Thêm Gemini
     builder.AddGoogleAIGeminiChatCompletion(
-        modelId: "gemini-2.5-flash",
+        modelId: "gemini-2.5-flash-lite",
         apiKey: geminiApiKey);
 
     // QUAN TRỌNG: Lấy UIPlugin từ DI và nạp vào Kernel

@@ -15,6 +15,20 @@ namespace MyFirstProject.Server.Dtos
         List<RequestSingleTaskDto>? RequestSingleTaskDtos
     );
 
+    public record UpdatePhaseDto
+(
+    int? Id,
+    string Title,
+    string? Description,
+    DateTime? StartDate,
+    DateTime? EndDate,
+    int PlanId,
+    int UserId,
+    List<GoalConfig>? Goals,
+    List<RequestRoutineDto>? RequestRoutineDtos,
+    List<RequestSingleTaskDto>? RequestSingleTaskDtos
+);
+
     public record ResponsePhaseDto
     (
         int Id,

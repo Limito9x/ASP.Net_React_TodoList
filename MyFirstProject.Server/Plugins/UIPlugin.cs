@@ -1,5 +1,6 @@
 ﻿using Microsoft.SemanticKernel;
 using MyFirstProject.Server.Dtos;
+using MyFirstProject.Server.Helpers;
 using MyFirstProject.Server.Services.Chat;
 using System.ComponentModel;
 using System.Text.Json;
@@ -23,12 +24,22 @@ namespace MyFirstProject.Server.Plugins
         )
         {
             Console.WriteLine($"Rendering Plan Preview UI Widget...,{planData.Title}");
-            await _uIWidgetCollector.PushWidgetAsync("PlanPreview", planData);
+
+            var mappedPlan = UIDataHelper.ToPlanDto(planData);
+
+            await _uIWidgetCollector.PushWidgetAsync("PlanPreview", mappedPlan);
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            };
+
             return JsonSerializer.Serialize(new
             {
                 status = "rendered",
-                planSummary = $"Plan '{planData.Title}' with {planData.Phases.Count} phases created."
-            });
+                planSummary = $"Plan '{mappedPlan.Title}' with {mappedPlan.Phases.Count} phases created."
+            }, options);
         }
     }
 }

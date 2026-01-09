@@ -9,6 +9,9 @@ namespace MyFirstProject.Server.Mappings
         public void Register(TypeAdapterConfig config)
         {
             config.NewConfig<RequestPlanDto, Plan>();
+
+            config.NewConfig<UpdatePlanDto, Plan>()
+                .Ignore(dest => dest.Phases);
         }
     }
 }

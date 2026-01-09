@@ -68,14 +68,14 @@ export default function AIChat() {
       const widgetData = msg.type === "UI" ? safeParseJSON(msg.data) : null;
 
       return {
-        key: msg.id.toString(),
+        key: msg?.id?.toString(),
         placement: isUser ? "end" : "start",
         avatar: isUser ? (
           <UserOutlined />
         ) : (
           <RobotOutlined style={{ color: "#1677ff" }} />
         ),
-        content: msg.content,
+        content: msg?.content,
         // Hiển thị Widget nếu có data hợp lệ
         footer: widgetData ? <PlanWidget data={widgetData} /> : null,
       };

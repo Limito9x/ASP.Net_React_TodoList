@@ -9,6 +9,15 @@
         List<RequestPhaseDto>? Phases
     );
 
+    public record UpdatePlanDto
+(
+    string Title,
+    string? Description,
+    DateTime? StartDate,
+    DateTime? EndDate,
+    List<UpdatePhaseDto>? Phases
+);
+
     public record ResponsePlanDto
     (
         int Id,

@@ -1,6 +1,6 @@
 import { Button, Card, Col, Form, Input, Row, Space } from "antd";
 import DynamicField from "./DynamicField";
-import type { mapTemplateToFormGroup } from "../../utils/mapper";
+import type { mapTemplateToFormGroup } from "../../utils/mappers/formMapper";
 
 interface EditTaskProps {
   form: ReturnType<typeof Form.useForm>[0];

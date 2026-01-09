@@ -1,7 +1,7 @@
 import EditTask from "../../components/Template/EditTask";
 import TemplateSidebar from "../../components/Template/TemplateSidebar";
 import { Row, Col, Form } from "antd";
-import { mapRowToFormGroup, mapTemplateToFormGroup } from "../../utils/mapper";
+import { mapRowToFormGroup, mapTemplateToFormGroup } from "../../utils/mappers/formMapper";
 import { useState } from "react";
 import type { Form as FormType } from "../../types/form";
 
